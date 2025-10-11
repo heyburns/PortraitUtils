@@ -1,5 +1,5 @@
 # AutoColorConfigNode
-![Screenshot](screenshots/auto_color_config_node.png)
+<div align="center"><img src="screenshots/auto_color_config_node.png" alt="Screenshot" width="300" /></div>
 
 
 ## Overview

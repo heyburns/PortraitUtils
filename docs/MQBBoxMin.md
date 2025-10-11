@@ -1,5 +1,5 @@
 # MQBBoxMin
-![Screenshot](screenshots/mq_bbox_min.png)
+<div align="center"><img src="screenshots/mq_bbox_min.png" alt="Screenshot" width="300" /></div>
 
 
 ## Overview

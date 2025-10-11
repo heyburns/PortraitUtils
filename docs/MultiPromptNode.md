@@ -1,5 +1,5 @@
 # MultiPromptNode
-![Screenshot](screenshots/multi_prompt_node.png)
+<div align="center"><img src="screenshots/multi_prompt_node.png" alt="Screenshot" width="300" /></div>
 
 
 ## Overview

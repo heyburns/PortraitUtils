@@ -1,5 +1,5 @@
 # ImageMegapixelSelector
-![Screenshot](screenshots/image_megapixel_selector.png)
+<div align="center"><img src="screenshots/image_megapixel_selector.png" alt="Screenshot" width="300" /></div>
 
 
 ## Overview

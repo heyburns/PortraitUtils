@@ -1,5 +1,5 @@
 # FluxResolutionPrepare
-![Screenshot](screenshots/flux_resolution_prepare.png)
+<div align="center"><img src="screenshots/flux_resolution_prepare.png" alt="Screenshot" width="300" /></div>
 
 
 ## Overview

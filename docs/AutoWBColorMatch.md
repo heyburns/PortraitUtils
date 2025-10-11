@@ -1,5 +1,5 @@
 # AutoWBColorMatch
-![Screenshot](screenshots/auto_wb_color_match.png)
+<div align="center"><img src="screenshots/auto_wb_color_match.png" alt="Screenshot" width="300" /></div>
 
 
 ## Overview

@@ -1,5 +1,5 @@
 # AutoCropBorders
-![Screenshot](screenshots/auto_crop_borders.png)
+<div align="center"><img src="screenshots/auto_crop_borders.png" alt="Screenshot" width="300" /></div>
 
 
 ## Overview

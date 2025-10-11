@@ -1,5 +1,5 @@
 # CropMaskByMargins
-![Screenshot](screenshots/crop_mask_by_margins.png)
+<div align="center"><img src="screenshots/crop_mask_by_margins.png" alt="Screenshot" width="300" /></div>
 
 
 ## Overview

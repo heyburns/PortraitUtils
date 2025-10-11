@@ -1,5 +1,5 @@
 # PortraitUtils_PairedImageLoader
-![Screenshot](screenshots/portraitutils_paired_image_loader.png)
+<div align="center"><img src="screenshots/portraitutils_paired_image_loader.png" alt="Screenshot" width="300" /></div>
 
 
 ## Overview

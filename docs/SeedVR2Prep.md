@@ -1,5 +1,5 @@
 # SeedVR2Prep
-![Screenshot](screenshots/seedvr2_prep.png)
+<div align="center"><img src="screenshots/seedvr2_prep.png" alt="Screenshot" width="300" /></div>
 
 
 ## Overview

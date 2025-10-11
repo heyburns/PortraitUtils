@@ -1,5 +1,5 @@
 # StitchByMask
-![Screenshot](screenshots/stitch_by_mask.png)
+<div align="center"><img src="screenshots/stitch_by_mask.png" alt="Screenshot" width="300" /></div>
 
 
 ## Overview

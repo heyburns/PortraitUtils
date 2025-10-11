@@ -1,5 +1,5 @@
 # GpuSyncCacheClear
-![Screenshot](screenshots/gpu_sync_cache_clear.png)
+<div align="center"><img src="screenshots/gpu_sync_cache_clear.png" alt="Screenshot" width="300" /></div>
 
 
 ## Overview

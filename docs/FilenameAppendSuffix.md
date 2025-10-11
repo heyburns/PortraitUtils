@@ -1,5 +1,5 @@
 # FilenameAppendSuffix
-![Screenshot](screenshots/filename_append_suffix.png)
+<div align="center"><img src="screenshots/filename_append_suffix.png" alt="Screenshot" width="300" /></div>
 
 
 ## Overview
