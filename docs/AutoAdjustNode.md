@@ -1,5 +1,6 @@
 # AutoAdjustNode
-![Screenshot](screenshots/auto_adjust_node.png)
+<img src="screenshots/auto_adjust_node.png" alt="Auto Adjust Node screenshot" width="300" />
+
 
 
 ## Overview
