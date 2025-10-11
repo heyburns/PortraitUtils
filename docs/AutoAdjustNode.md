@@ -1,5 +1,5 @@
 # AutoAdjustNode
-<img src="screenshots/auto_adjust_node.png" alt="Auto Adjust Node screenshot" width="300" />
+<div align="center"><img src="screenshots/auto_adjust_node.png" alt="Screenshot" width="300" /></div>
 
 
 
