@@ -1,4 +1,6 @@
 # MQBBoxMin
+![Screenshot](screenshots/mq_bbox_min.png)
+
 
 ## Overview
 `MQBBoxMin` (Median/Quantile Bounding Box) derives a robust subject bounding box from a mask. It auto-detects whether the mask represents foreground or background, applies quantile-based trimming to ignore outliers, and optionally inflates the result to maintain a minimum span. The node returns both the bounding box and a debug string describing the decision path.

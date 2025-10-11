@@ -1,4 +1,6 @@
 # ImageMegapixelSelector
+![Screenshot](screenshots/image_megapixel_selector.png)
+
 
 ## Overview
 `ImageMegapixelSelector` rescales an RGB image to the closest target in {1, 2, 3} megapixels (rounded with ties favouring larger). The resized output can enforce divisibility constraints on width and height, making it handy for models that require dimensions aligned to a specific multiple (e.g., 8 or 64).

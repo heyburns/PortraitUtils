@@ -1,4 +1,6 @@
 # AutoColorConfigNode
+![Screenshot](screenshots/auto_color_config_node.png)
+
 
 ## Overview
 `AutoColorConfigNode` bundles the toggle values used by `AutoAdjustNode` into a reusable configuration socket. It is designed to keep multiple processing branches in sync without duplicating widgets, and it emits plain boolean values that can be re-injected into other nodes.

@@ -1,4 +1,6 @@
 # FluxResolutionPrepare
+![Screenshot](screenshots/flux_resolution_prepare.png)
+
 
 ## Overview
 `FluxResolutionPrepare` crops and resizes an image to the closest legal resolution supported by Flux-family models. It optionally pre-upscales low-resolution inputs to a minimum megapixel budget, respects an optional user-supplied crop window, and reports the chosen aspect ratio along with crop efficiency metrics.

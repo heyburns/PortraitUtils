@@ -1,4 +1,6 @@
 # FilenameAppendSuffix
+![Screenshot](screenshots/filename_append_suffix.png)
+
 
 ## Overview
 `FilenameAppendSuffix` builds a new filename by appending a suffix to an existing path. It supports removing multi-part extensions (e.g., `.tar.gz`), trimming whitespace, and optionally preserving the original directory component.

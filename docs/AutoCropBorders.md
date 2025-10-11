@@ -1,4 +1,6 @@
 # AutoCropBorders
+![Screenshot](screenshots/auto_crop_borders.png)
+
 
 ## Overview
 `AutoCropBorders` trims uniform borders from an image by sampling edge pixels, estimating their colour statistics, and region-growing inward until the content changes. It optionally returns the detected border mask and reports the crop rectangle, making it useful for automated subject isolation or pre-processing scanned artwork.

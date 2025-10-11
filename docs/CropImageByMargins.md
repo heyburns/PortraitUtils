@@ -1,4 +1,6 @@
 # CropImageByMargins
+![Screenshot](screenshots/crop_image_by_margins.png)
+
 
 ## Overview
 `CropImageByMargins` removes a specified number of pixels from each edge of an RGB image. It supports optional snapping of the resulting dimensions to a chosen multiple, which is useful when downstream models require even or block-aligned shapes.

@@ -1,4 +1,6 @@
 # PortraitUtils_PairedImageLoader
+![Screenshot](screenshots/portraitutils_paired_image_loader.png)
+
 
 ## Overview
 `PortraitUtils_PairedImageLoader` pairs images from two directories (typically “source” and “output”) and emits the next matching duo on every run. It keeps its position per node instance, supports forward/backward stepping, and reports the active filename for UI display or logging.

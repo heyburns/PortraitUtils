@@ -1,4 +1,6 @@
 # OutpaintPaddingComputeNode
+![Screenshot](screenshots/outpaint_padding_compute_node.png)
+
 
 ## Overview
 `OutpaintPaddingComputeNode` converts outpainting preferences (percentages or absolute pixels plus gravity) into concrete padding values for a given image. It ensures the final canvas dimensions remain even—useful for latent-based diffusion models—and supports both symmetric and directional growth.

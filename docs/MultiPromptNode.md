@@ -1,4 +1,6 @@
 # MultiPromptNode
+![Screenshot](screenshots/multi_prompt_node.png)
+
 
 ## Overview
 `MultiPromptNode` exposes four independent multiline string sockets that can hold prompt snippets, masks, or any free-form text. It does not alter or combine the strings; the node simply passes them through so they can be reused elsewhere in a workflow.

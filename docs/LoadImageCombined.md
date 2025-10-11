@@ -1,4 +1,6 @@
 # LoadImageCombined
+![Screenshot](screenshots/load_image_combined.png)
+
 
 ## Overview
 `LoadImageCombined` unifies single-image selection and batch iteration within one node. In single mode it behaves like ComfyUI’s standard loader; in batch mode it iterates through a directory listing on each execution, keeping track of the last-delivered file to maintain sequence order.

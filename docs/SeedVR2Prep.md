@@ -1,4 +1,6 @@
 # SeedVR2Prep
+![Screenshot](screenshots/seedvr2_prep.png)
+
 
 ## Overview
 `SeedVR2Prep` prepares images for SeedVR2 and other VRAM-sensitive pipelines by enforcing even dimensions and optionally converting tensors to FP16 on the GPU. It ensures data is in `[B, H, W, 3]` format, repeating channels as necessary.

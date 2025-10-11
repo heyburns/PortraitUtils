@@ -1,4 +1,6 @@
 # WorkflowConfig
+![Screenshot](screenshots/workflow_config.png)
+
 
 ## Overview
 `WorkflowConfig` centralises high-level settings (upscale amounts, cropping policy, stitch opacity, seed control, notes) and exposes them both as individual sockets and as a JSON bundle. It supports loading/saving presets, honours server-side random seed generation, and attempts to keep workflow metadata in sync when special seed values are used.

@@ -1,4 +1,6 @@
 # AutoWBColorMatch
+![Screenshot](screenshots/auto_wb_color_match.png)
+
 
 ## Overview
 `AutoWBColorMatch` aligns an image’s white balance and global colour characteristics to match a reference. Multiple strategies are available: gray-world and highlight-based white balance, full or luminance-only Reinhard colour transfer in Lab space, or a hybrid pipeline that combines highlight balancing with Reinhard matching.

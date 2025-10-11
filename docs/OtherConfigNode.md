@@ -1,4 +1,6 @@
 # OtherConfigNode
+![Screenshot](screenshots/other_config_node.png)
+
 
 ## Overview
 `OtherConfigNode` is a lightweight configuration hub that emits a handful of numeric and boolean values commonly reused across portrait workflows. Unlike `WorkflowConfig`, it does not interact with presets or metadata—its role is to provide a simple socket interface that keeps related parameters grouped.

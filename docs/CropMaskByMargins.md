@@ -1,4 +1,6 @@
 # CropMaskByMargins
+![Screenshot](screenshots/crop_mask_by_margins.png)
+
 
 ## Overview
 `CropMaskByMargins` mirrors the behaviour of `CropImageByMargins` but operates on mask tensors. It normalises mask shapes into `[B, H, W, 1]`, applies pixel margins, and optionally snaps the result to a given multiple—ideal for keeping mask geometry aligned with cropped images.

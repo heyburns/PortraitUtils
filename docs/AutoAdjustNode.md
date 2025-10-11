@@ -1,4 +1,6 @@
 # AutoAdjustNode
+![Screenshot](screenshots/auto_adjust_node.png)
+
 
 ## Overview
 `AutoAdjustNode` performs a chained series of global tone corrections on an RGB image. It can optionally apply automatic levels, per-channel or monochrome tone stretching, neutral colour balancing in YCbCr, and a final horizontal flip. The implementation assumes floating-point tensors in `[0, 1]` and always returns RGB output.

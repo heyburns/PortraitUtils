@@ -1,4 +1,6 @@
 # OutpaintConfigNode
+![Screenshot](screenshots/outpaint_config_node.png)
+
 
 ## Overview
 `OutpaintConfigNode` collects user preferences for outpainting operations—gravity, measurement mode, and per-edge padding. Its outputs are raw values that can feed into padding calculators or custom scripts without additional parsing.

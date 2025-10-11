@@ -1,4 +1,6 @@
 # FitAspectHeadSafe
+![Screenshot](screenshots/fit_aspect_head_safe.png)
+
 
 ## Overview
 `FitAspectHeadSafe` chooses an aspect ratio from a user-supplied list and computes a crop rectangle that keeps a detected subject centred with controllable headroom, footroom, and side margins. It is designed to work with the bounding boxes emitted by `MQBBoxMin`, maintaining portrait-friendly framing while matching downstream aspect targets.

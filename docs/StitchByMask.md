@@ -1,4 +1,6 @@
 # StitchByMask
+![Screenshot](screenshots/stitch_by_mask.png)
+
 
 ## Overview
 `StitchByMask` composites two RGB images using a soft mask, with optional mask inversion, bypass blending, feathering, and enforced output dimensions. It is geared toward portrait editing workflows where foreground/background swaps or stitched passes need precise control.
