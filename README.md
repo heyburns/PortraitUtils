@@ -1,6 +1,6 @@
 # PortraitUtils Node Suite
 
-PortraitUtils is a focused collection of ComfyUI nodes designed for pipelines using real potographic images of people, where image sizes are not standardized as they are in text-to-image generation. The suite streamlines prep work such as cropping, resolution targeting, metadata management, and side-by-side QA so you can concentrate on creative iteration instead of utility wiring. These nodes should work on any type of image, but some of them are designed for and tested on humans, particularly the smart cropping nodes.
+PortraitUtils is a focused collection of ComfyUI nodes designed for pipelines using real potographic images of people, where image sizes are not standardized as they are in text-to-image generation. The suite streamlines prep work such as cropping, resolution targeting, metadata management, and side-by-side QA so you can concentrate on creative iteration instead of utility wiring. These nodes should work well on any type of image, but some of them are designed for and tested on images of humans, particularly the smart cropping nodes.
 
 ## Node Index
 
