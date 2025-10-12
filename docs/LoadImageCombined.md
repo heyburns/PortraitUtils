@@ -1,5 +1,5 @@
 # LoadImageCombined
-<div align="center"><img src="screenshots/load_image_combined.png" alt="Screenshot" width="300" /></div>
+<div align="center"><img src="screenshots/load_image_combined.png" alt="Screenshot" width="200" /></div>
 
 
 ## Overview
