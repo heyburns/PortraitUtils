@@ -25,7 +25,7 @@ Each entry links to a short, task-oriented reference page (coming soon) for deep
 - `MultiPromptNode` – Cycles through prompt variants with per-slot weights. [Docs](docs/MultiPromptNode.md)
 - `WorkflowConfig` – Centralized key/value store for workflow-wide settings. [Docs](docs/WorkflowConfig.md)
 - `OutpaintConfigNode` – Packs outpainting preferences (steps, padding, sampler choices). [Docs](docs/OutpaintConfigNode.md)
-- `OutpaintPaddingComputeNode` – Calculates padding offsets to feed outpaint chains. [Docs](docs/OutpaintPaddingComputeNode.md)
+- `OutpaintPaddingComputeNode` – Calculates padding offsets to feed outpaint chains as either percentage or absolute pixels, with gravity. [Docs](docs/OutpaintPaddingComputeNode.md)
 
 ### I/O & Utility Helpers
 - `LoadImageCombined` – Hybrid single/batch image loader with auto-advance support. [Docs](docs/LoadImageCombined.md)
