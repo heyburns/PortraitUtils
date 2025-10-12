@@ -23,7 +23,7 @@ class FilenameAppendSuffix:
         return {
             "required": {
                 "filename": ("STRING", {"multiline": False, "default": ""}),
-                "suffix": ("STRING", {"multiline": False, "default": "supir"}),
+                "suffix": ("STRING", {"multiline": False, "default": ""}),
                 "separator": ("STRING", {"multiline": False, "default": "-"}),
                 "strip_all_extensions": ("BOOLEAN", {"default": True}),
                 "preserve_directory": ("BOOLEAN", {"default": True}),
