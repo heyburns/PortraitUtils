@@ -97,7 +97,7 @@ class PortraitUtils_PairedImageLoader:
     CATEGORY = "PortraitUtils"
     RETURN_TYPES = ("IMAGE", "IMAGE", "STRING")
     FUNCTION = "load_next_pair"
-    RETURN_NAMES = ("source_image", "output_image", "filename")
+    RETURN_NAMES = ("output_image", "source_image", "filename")
     NOT_IDEMPOTENT = True
 
     def __init__(self):
@@ -220,7 +220,7 @@ class PortraitUtils_PairedImageLoader:
             f"{pair.display_name} ({next_index + 1}/{len(pairs)})"
         )
 
-        return source_tensor, output_tensor, pair.source.name
+        return output_tensor, source_tensor, pair.source.name
 
     @classmethod
     def _scan_directories(

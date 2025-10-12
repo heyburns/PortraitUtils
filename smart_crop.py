@@ -147,7 +147,7 @@ class MQBBoxMin:
                 "tight_crop": (
                     "BOOLEAN",
                     {
-                        "default": True,
+                        "default": False,
                         "tooltip": "ON: tight subject bbox with smart AR; OFF: full frame (minimal AR crop downstream).",
                     },
                 ),
