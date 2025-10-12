@@ -7,7 +7,7 @@
 
 ## Inputs
 - `filename` (`STRING`, default empty): Original filename or path.
-- `suffix` (`STRING`, default `"supir"`): Text appended to the base name. Leave empty to omit the suffix altogether.
+- `suffix` (`STRING`, default empty): Text appended to the base name. Leave empty to omit the suffix altogether.
 - `separator` (`STRING`, default `"-"`): Separator inserted between the base name and `suffix` when needed.
 - `strip_all_extensions` (`BOOLEAN`, default `True`): When `True`, removes every trailing extension component (useful for multi-part archives). When `False`, only strips the final extension.
 - `preserve_directory` (`BOOLEAN`, default `True`): When enabled, reattaches the original directory path to the generated filename.
@@ -23,4 +23,4 @@
 
 ## Tips
 - Chain this node after `LoadImageCombined` or `PortraitUtils_PairedImageLoader` to build save paths that mirror the input file names.
-- Disable `preserve_directory` when you want to relocate files into a new output folder without carrying over their original path.*** End Patch
+- Disable `preserve_directory` when you want to relocate files into a new output folder without carrying over their original path.

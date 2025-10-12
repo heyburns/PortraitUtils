@@ -1,5 +1,5 @@
 # OutpaintPaddingComputeNode
-<div align="center"><img src="screenshots/outpaint_padding_compute_node.png" alt="Screenshot" width="300" /></div>
+<div align="center"><img src="screenshots/outpaint_padding_compute_node.png" alt="Screenshot" width="500" /></div>
 
 
 ## Overview
