@@ -7,12 +7,10 @@ PortraitUtils is a focused collection of ComfyUI nodes designed for pipelines us
 Each entry links to a short, task-oriented reference page (coming soon) for deeper usage notes and parameter breakdowns.
 
 ### Image Adjustments & Preparation
-- `AutoAdjustNode` - One-click levels, tone, and color balancing. [Docs](docs/AutoAdjustNode.md)
-  <div align="center"><img src="docs/screenshots/auto_adjust_node.png" alt="AutoAdjustNode screenshot" width="500" /></div>
+- `AutoAdjustNode` + `AutoColorConfigNode` - Global tone balancing with reusable toggle bundles. [Docs](docs/AutoAdjustSuite.md)
+  <div align="center"><img src="docs/screenshots/auto_adjust_node.png" alt="AutoAdjust suite screenshot" width="500" /></div>
 - `AutoWBColorMatch` - White-balances and colour matches against a reference image using several algorithms. [Docs](docs/AutoWBColorMatch.md)
   <div align="center"><img src="docs/screenshots/auto_wb_color_match.png" alt="AutoWBColorMatch screenshot" width="300" /></div>
-- `AutoColorConfigNode` - Lightweight toggle bundle for sharing Auto Adjust presets. [Docs](docs/AutoColorConfigNode.md)
-  <div align="center"><img src="docs/screenshots/auto_color_config_node.png" alt="AutoColorConfigNode screenshot" width="500" /></div>
 - `FluxResolutionPrepare` - Crops and resizes to the nearest Flux-friendly resolution, with optional pre-upscale. [Docs](docs/FluxResolutionPrepare.md)
   <div align="center"><img src="docs/screenshots/flux_resolution_prepare.png" alt="FluxResolutionPrepare screenshot" width="300" /></div>
 - `ImageMegapixelSelector` - Chooses image sizes by target megapixels to match downstream model limits. [Docs](docs/ImageMegapixelSelector.md)
@@ -24,11 +22,8 @@ Each entry links to a short, task-oriented reference page (coming soon) for deep
 - `CropImageByMargins` - Manual margin-based cropper for RGB images. [Docs](docs/CropImageByMargins.md)
   <div align="center"><img src="docs/screenshots/crop_image_by_margins.png" alt="CropImageByMargins screenshot" width="300" /></div>
 - `CropMaskByMargins` - Margin cropper designed for MASK tensors. [Docs](docs/CropMaskByMargins.md)
-  <div align="center"><img src="docs/screenshots/crop_mask_by_margins.png" alt="CropMaskByMargins screenshot" width="300" /></div>
-- `FitAspectHeadSafe` - Rescales and pads while preserving face-safe regions for portrait framing. [Docs](docs/FitAspectHeadSafe.md)
-  <div align="center"><img src="docs/screenshots/fit_aspect_head_safe.png" alt="FitAspectHeadSafe screenshot" width="500" /></div>
-- `MQBBoxMin` - Utility for merging bounding boxes while enforcing minimum sizes. [Docs](docs/MQBBoxMin.md)
-  <div align="center"><img src="docs/screenshots/mq_bbox_min.png" alt="MQBBoxMin screenshot" width="500" /></div>
+- `FitAspectHeadSafe` + `MQBBoxMin` - Subject-aware boxing with headroom-aware aspect fitting. [Docs](docs/FitAspectSuite.md)
+  <div align="center"><img src="docs/screenshots/fit_aspect_head_safe.png" alt="FitAspect suite screenshot" width="500" /></div>
 - `StitchByMask` - Composites foreground and background images using mask-driven blending. [Docs](docs/StitchByMask.md)
   <div align="center"><img src="docs/screenshots/stitch_by_mask.png" alt="StitchByMask screenshot" width="300" /></div>
 
@@ -37,10 +32,8 @@ Each entry links to a short, task-oriented reference page (coming soon) for deep
   <div align="center"><img src="docs/screenshots/multi_prompt_node.png" alt="MultiPromptNode screenshot" width="300" /></div>
 - `WorkflowConfig` - Centralized key/value store for workflow-wide settings. [Docs](docs/WorkflowConfig.md)
   <div align="center"><img src="docs/screenshots/workflow_config.png" alt="WorkflowConfig screenshot" width="300" /></div>
-- `OutpaintConfigNode` - Packs outpainting preferences (steps, padding, sampler choices). [Docs](docs/OutpaintConfigNode.md)
-  <div align="center"><img src="docs/screenshots/outpaint_config_node.png" alt="OutpaintConfigNode screenshot" width="500" /></div>
-- `OutpaintPaddingComputeNode` - Calculates padding offsets to feed outpaint chains as either percentage or absolute pixels, with gravity. [Docs](docs/OutpaintPaddingComputeNode.md)
-  <div align="center"><img src="docs/screenshots/outpaint_padding_compute_node.png" alt="OutpaintPaddingComputeNode screenshot" width="500" /></div>
+- `OutpaintConfigNode` + `OutpaintPaddingComputeNode` - Preference capture plus per-edge padding conversion. [Docs](docs/OutpaintSuite.md)
+  <div align="center"><img src="docs/screenshots/outpaint_config_node.png" alt="Outpaint suite screenshot" width="500" /></div>
 
 ### I/O & Utility Helpers
 - `LoadImageCombined` - Hybrid single/batch image loader with auto-advance support. [Docs](docs/LoadImageCombined.md)
