@@ -19,9 +19,8 @@ Each entry links to a short, task-oriented reference page (coming soon) for deep
 ### Cropping, Framing, and Stitching
 - `AutoCropBorders` - Removes uniform borders using adaptive fuzzy detection. GPU acceleration is currently broken, so leave that off for now. [Docs](docs/AutoCropBorders.md)
   <div align="center"><img src="docs/screenshots/auto_crop_borders.png" alt="AutoCropBorders screenshot" width="300" /></div>
-- `CropImageByMargins` - Manual margin-based cropper for RGB images. [Docs](docs/CropImageByMargins.md)
-  <div align="center"><img src="docs/screenshots/crop_image_by_margins.png" alt="CropImageByMargins screenshot" width="300" /></div>
-- `CropMaskByMargins` - Margin cropper designed for MASK tensors. [Docs](docs/CropMaskByMargins.md)
+- `CropImageByMargins` + `CropMaskByMargins` - Aligned margin croppers for RGB images and masks. [Docs](docs/CropByMarginsSuite.md)
+  <div align="center"><img src="docs/screenshots/crop_image_by_margins.png" alt="Crop by margins suite screenshot" width="300" /></div>
 - `FitAspectHeadSafe` + `MQBBoxMin` - Subject-aware boxing with headroom-aware aspect fitting. [Docs](docs/FitAspectSuite.md)
   <div align="center"><img src="docs/screenshots/fit_aspect_head_safe.png" alt="FitAspect suite screenshot" width="500" /></div>
 - `StitchByMask` - Composites foreground and background images using mask-driven blending. [Docs](docs/StitchByMask.md)
