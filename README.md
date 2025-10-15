@@ -7,32 +7,53 @@ PortraitUtils is a focused collection of ComfyUI nodes designed for pipelines us
 Each entry links to a short, task-oriented reference page (coming soon) for deeper usage notes and parameter breakdowns.
 
 ### Image Adjustments & Preparation
-- `AutoAdjustNode` – One-click levels, tone, and color balancing. [Docs](docs/AutoAdjustNode.md)
-- `AutoWBColorMatch` – White-balances and colour matches against a reference image using several algorithms. [Docs](docs/AutoWBColorMatch.md)
-- `AutoColorConfigNode` – Lightweight toggle bundle for sharing Auto Adjust presets. [Docs](docs/AutoColorConfigNode.md)
-- `FluxResolutionPrepare` – Crops and resizes to the nearest Flux-friendly resolution, with optional pre-upscale. [Docs](docs/FluxResolutionPrepare.md)
-- `ImageMegapixelSelector` – Chooses image sizes by target megapixels to match downstream model limits. [Docs](docs/ImageMegapixelSelector.md)
+- `AutoAdjustNode` - One-click levels, tone, and color balancing. [Docs](docs/AutoAdjustNode.md)
+  <div align="center"><img src="docs/screenshots/auto_adjust_node.png" alt="AutoAdjustNode screenshot" width="500" /></div>
+- `AutoWBColorMatch` - White-balances and colour matches against a reference image using several algorithms. [Docs](docs/AutoWBColorMatch.md)
+  <div align="center"><img src="docs/screenshots/auto_wb_color_match.png" alt="AutoWBColorMatch screenshot" width="300" /></div>
+- `AutoColorConfigNode` - Lightweight toggle bundle for sharing Auto Adjust presets. [Docs](docs/AutoColorConfigNode.md)
+  <div align="center"><img src="docs/screenshots/auto_color_config_node.png" alt="AutoColorConfigNode screenshot" width="500" /></div>
+- `FluxResolutionPrepare` - Crops and resizes to the nearest Flux-friendly resolution, with optional pre-upscale. [Docs](docs/FluxResolutionPrepare.md)
+  <div align="center"><img src="docs/screenshots/flux_resolution_prepare.png" alt="FluxResolutionPrepare screenshot" width="300" /></div>
+- `ImageMegapixelSelector` - Chooses image sizes by target megapixels to match downstream model limits. [Docs](docs/ImageMegapixelSelector.md)
+  <div align="center"><img src="docs/screenshots/image_megapixel_selector.png" alt="ImageMegapixelSelector screenshot" width="300" /></div>
 
 ### Cropping, Framing, and Stitching
-- `AutoCropBorders` – Removes uniform borders using adaptive fuzzy detection. GPU acceleration is currently broken, so leave that off for now. [Docs](docs/AutoCropBorders.md)
-- `CropImageByMargins` – Manual margin-based cropper for RGB images. [Docs](docs/CropImageByMargins.md)
-- `CropMaskByMargins` – Margin cropper designed for MASK tensors. [Docs](docs/CropMaskByMargins.md)
-- `FitAspectHeadSafe` – Rescales and pads while preserving face-safe regions for portrait framing. [Docs](docs/FitAspectHeadSafe.md)
-- `MQBBoxMin` – Utility for merging bounding boxes while enforcing minimum sizes. [Docs](docs/MQBBoxMin.md)
-- `StitchByMask` – Composites foreground and background images using mask-driven blending. [Docs](docs/StitchByMask.md)
+- `AutoCropBorders` - Removes uniform borders using adaptive fuzzy detection. GPU acceleration is currently broken, so leave that off for now. [Docs](docs/AutoCropBorders.md)
+  <div align="center"><img src="docs/screenshots/auto_crop_borders.png" alt="AutoCropBorders screenshot" width="300" /></div>
+- `CropImageByMargins` - Manual margin-based cropper for RGB images. [Docs](docs/CropImageByMargins.md)
+  <div align="center"><img src="docs/screenshots/crop_image_by_margins.png" alt="CropImageByMargins screenshot" width="300" /></div>
+- `CropMaskByMargins` - Margin cropper designed for MASK tensors. [Docs](docs/CropMaskByMargins.md)
+  <div align="center"><img src="docs/screenshots/crop_mask_by_margins.png" alt="CropMaskByMargins screenshot" width="300" /></div>
+- `FitAspectHeadSafe` - Rescales and pads while preserving face-safe regions for portrait framing. [Docs](docs/FitAspectHeadSafe.md)
+  <div align="center"><img src="docs/screenshots/fit_aspect_head_safe.png" alt="FitAspectHeadSafe screenshot" width="500" /></div>
+- `MQBBoxMin` - Utility for merging bounding boxes while enforcing minimum sizes. [Docs](docs/MQBBoxMin.md)
+  <div align="center"><img src="docs/screenshots/mq_bbox_min.png" alt="MQBBoxMin screenshot" width="500" /></div>
+- `StitchByMask` - Composites foreground and background images using mask-driven blending. [Docs](docs/StitchByMask.md)
+  <div align="center"><img src="docs/screenshots/stitch_by_mask.png" alt="StitchByMask screenshot" width="300" /></div>
 
 ### Prompting & Workflow Configuration
-- `MultiPromptNode` – Cycles through prompt variants with per-slot weights. [Docs](docs/MultiPromptNode.md)
-- `WorkflowConfig` – Centralized key/value store for workflow-wide settings. [Docs](docs/WorkflowConfig.md)
-- `OutpaintConfigNode` – Packs outpainting preferences (steps, padding, sampler choices). [Docs](docs/OutpaintConfigNode.md)
-- `OutpaintPaddingComputeNode` – Calculates padding offsets to feed outpaint chains as either percentage or absolute pixels, with gravity. [Docs](docs/OutpaintPaddingComputeNode.md)
+- `MultiPromptNode` - Cycles through prompt variants with per-slot weights. [Docs](docs/MultiPromptNode.md)
+  <div align="center"><img src="docs/screenshots/multi_prompt_node.png" alt="MultiPromptNode screenshot" width="300" /></div>
+- `WorkflowConfig` - Centralized key/value store for workflow-wide settings. [Docs](docs/WorkflowConfig.md)
+  <div align="center"><img src="docs/screenshots/workflow_config.png" alt="WorkflowConfig screenshot" width="300" /></div>
+- `OutpaintConfigNode` - Packs outpainting preferences (steps, padding, sampler choices). [Docs](docs/OutpaintConfigNode.md)
+  <div align="center"><img src="docs/screenshots/outpaint_config_node.png" alt="OutpaintConfigNode screenshot" width="500" /></div>
+- `OutpaintPaddingComputeNode` - Calculates padding offsets to feed outpaint chains as either percentage or absolute pixels, with gravity. [Docs](docs/OutpaintPaddingComputeNode.md)
+  <div align="center"><img src="docs/screenshots/outpaint_padding_compute_node.png" alt="OutpaintPaddingComputeNode screenshot" width="500" /></div>
 
 ### I/O & Utility Helpers
-- `LoadImageCombined` – Hybrid single/batch image loader with auto-advance support. [Docs](docs/LoadImageCombined.md)
-- `PortraitUtils_PairedImageLoader` – Loads synchronized source/output pairs for A/B comparison workflows. [Docs](docs/PortraitUtils_PairedImageLoader.md)
-- `FilenameAppendSuffix` – Adds suffixes to filenames while respecting multi-extension cases. [Docs](docs/FilenameAppendSuffix.md)
-- `GpuSyncCacheClear` – Forces a CUDA sync and empties selected caches to avoid VRAM buildup. [Docs](docs/GpuSyncCacheClear.md)
-- `SeedVR2Prep` – Convenience helper for SeedVR2/VRAM-heavy pipelines (cache priming & cleanup). [Docs](docs/SeedVR2Prep.md)
+- `LoadImageCombined` - Hybrid single/batch image loader with auto-advance support. [Docs](docs/LoadImageCombined.md)
+  <div align="center"><img src="docs/screenshots/load_image_combined.png" alt="LoadImageCombined screenshot" width="200" /></div>
+- `PairedImageLoader` - Loads synchronized source/output pairs for A/B comparison workflows. [Docs](docs/PairedImageLoader.md)
+  <div align="center"><img src="docs/screenshots/portraitutils_paired_image_loader.png" alt="PairedImageLoader screenshot" width="300" /></div>
+- `ComparisonGate` - Gates comparison outputs until two populated images are available. [Docs](docs/ComparisonGate.md)
+- `FilenameAppendSuffix` - Adds suffixes to filenames while respecting multi-extension cases. [Docs](docs/FilenameAppendSuffix.md)
+  <div align="center"><img src="docs/screenshots/filename_append_suffix.png" alt="FilenameAppendSuffix screenshot" width="300" /></div>
+- `GpuSyncCacheClear` - Forces a CUDA sync and empties selected caches to avoid VRAM buildup. [Docs](docs/GpuSyncCacheClear.md)
+  <div align="center"><img src="docs/screenshots/gpu_sync_cache_clear.png" alt="GpuSyncCacheClear screenshot" width="300" /></div>
+- `SeedVR2Prep` - Convenience helper for SeedVR2/VRAM-heavy pipelines (cache priming & cleanup). [Docs](docs/SeedVR2Prep.md)
+  <div align="center"><img src="docs/screenshots/seedvr2_prep.png" alt="SeedVR2Prep screenshot" width="300" /></div>
 
 ## License
 

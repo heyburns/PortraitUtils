@@ -93,7 +93,7 @@ def _coerce_str(value) -> str:
     return str(value)
 
 
-class PortraitUtils_PairedImageLoader:
+class PairedImageLoader:
     CATEGORY = "PortraitUtils"
     RETURN_TYPES = ("IMAGE", "IMAGE", "STRING")
     FUNCTION = "load_next_pair"
@@ -161,20 +161,20 @@ class PortraitUtils_PairedImageLoader:
         self._state_key = state_key
 
         if not source_dir:
-            raise ValueError("PortraitUtils_PairedImageLoader: source_dir is required.")
+            raise ValueError("PairedImageLoader: source_dir is required.")
         if not output_dir:
-            raise ValueError("PortraitUtils_PairedImageLoader: output_dir is required.")
+            raise ValueError("PairedImageLoader: output_dir is required.")
 
         src_path = _resolve_directory(source_dir)
         out_path = _resolve_directory(output_dir)
 
         if not src_path.exists() or not src_path.is_dir():
             raise ValueError(
-                f"PortraitUtils_PairedImageLoader: source_dir not found: {src_path}"
+                f"PairedImageLoader: source_dir not found: {src_path}"
             )
         if not out_path.exists() or not out_path.is_dir():
             raise ValueError(
-                f"PortraitUtils_PairedImageLoader: output_dir not found: {out_path}"
+                f"PairedImageLoader: output_dir not found: {out_path}"
             )
 
         state = _STATE.setdefault(state_key, migrated_state or _NodeState())
@@ -196,7 +196,7 @@ class PortraitUtils_PairedImageLoader:
 
         if not pairs:
             raise RuntimeError(
-                "PortraitUtils_PairedImageLoader: no matching images found "
+                "PairedImageLoader: no matching images found "
                 f"between {src_path} and {out_path}."
             )
 
@@ -216,7 +216,7 @@ class PortraitUtils_PairedImageLoader:
         _SIGNATURE_INDEX[signature] = state.index
 
         print(
-            "[PortraitUtils_PairedImageLoader] "
+            "[PairedImageLoader] "
             f"{pair.display_name} ({next_index + 1}/{len(pairs)})"
         )
 
@@ -383,23 +383,23 @@ class PortraitUtils_PairedImageLoader:
 
         if source_only:
             print(
-                "[PortraitUtils_PairedImageLoader] Unmatched source files "
+                "[PairedImageLoader] Unmatched source files "
                 f"({len(source_only)}) in {source_dir}: {_summarize(source_only)}"
             )
         if output_only:
             print(
-                "[PortraitUtils_PairedImageLoader] Unmatched output files "
+                "[PairedImageLoader] Unmatched output files "
                 f"({len(output_only)}) in {output_dir}: {_summarize(output_only)}"
             )
         if collisions:
             for key, files in collisions.items():
                 print(
-                    "[PortraitUtils_PairedImageLoader] Normalised name collision "
+                    "[PairedImageLoader] Normalised name collision "
                     f"for '{key}': {_summarize(sorted(set(files), key=_natural_sort_key))}"
                 )
         if ext_mismatch:
             print(
-                "[PortraitUtils_PairedImageLoader] Chosen fallback matches with differing "
+                "[PairedImageLoader] Chosen fallback matches with differing "
                 f"extensions ({len(ext_mismatch)}): {_summarize(ext_mismatch)}"
             )
 
@@ -473,9 +473,9 @@ class PortraitUtils_PairedImageLoader:
 
 
 NODE_CLASS_MAPPINGS = {
-    "PortraitUtils_PairedImageLoader": PortraitUtils_PairedImageLoader,
+    "PairedImageLoader": PairedImageLoader,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
-    "PortraitUtils_PairedImageLoader": "Paired Image Loader",
+    "PairedImageLoader": "Paired Image Loader",
 }

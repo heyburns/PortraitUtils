@@ -1,5 +1,4 @@
 # OutpaintConfigNode
-<div align="center"><img src="screenshots/outpaint_config_node.png" alt="Screenshot" width="500" /></div>
 
 
 ## Overview

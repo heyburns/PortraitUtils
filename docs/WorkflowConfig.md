@@ -1,5 +1,4 @@
 # WorkflowConfig
-<div align="center"><img src="screenshots/workflow_config.png" alt="Screenshot" width="300" /></div>
 
 
 ## Overview

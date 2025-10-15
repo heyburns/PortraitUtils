@@ -1,5 +1,4 @@
 # FitAspectHeadSafe
-<div align="center"><img src="screenshots/fit_aspect_head_safe.png" alt="Screenshot" width="500" /></div>
 
 
 ## Overview

@@ -1,5 +1,4 @@
 # AutoColorConfigNode
-<div align="center"><img src="screenshots/auto_color_config_node.png" alt="Screenshot" width="500" /></div>
 
 
 ## Overview

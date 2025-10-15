@@ -1,5 +1,4 @@
 # FilenameAppendSuffix
-<div align="center"><img src="screenshots/filename_append_suffix.png" alt="Screenshot" width="300" /></div>
 
 
 ## Overview
@@ -22,5 +21,5 @@
 - Directory handling uses `os.path.join`, so platform-specific separators are respected.
 
 ## Tips
-- Chain this node after `LoadImageCombined` or `PortraitUtils_PairedImageLoader` to build save paths that mirror the input file names.
+- Chain this node after `LoadImageCombined` or `PairedImageLoader` to build save paths that mirror the input file names.
 - Disable `preserve_directory` when you want to relocate files into a new output folder without carrying over their original path.

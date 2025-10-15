@@ -1,5 +1,4 @@
 # LoadImageCombined
-<div align="center"><img src="screenshots/load_image_combined.png" alt="Screenshot" width="200" /></div>
 
 
 ## Overview
@@ -26,6 +25,6 @@
 - All images are converted to RGB using Pillow, with Exif orientation applied.
 
 ## Tips
-- Chain this node with `PortraitUtils_PairedImageLoader` or comparison nodes to quickly inspect before/after renders.
+- Chain this node with `PairedImageLoader` or comparison nodes to quickly inspect before/after renders.
 - Use `repeat_last` when you need to re-run the same batch frame after adjusting downstream parameters.
 - Combine with `FilenameAppendSuffix` to build descriptive output paths based on `filename_no_ext`.*** End Patch
