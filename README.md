@@ -38,7 +38,7 @@ Each entry links to a short, task-oriented reference page (coming soon) for deep
 - `LoadImageCombined` - Hybrid single/batch image loader with auto-advance support. [Docs](docs/LoadImageCombined.md)
   <div align="center"><img src="docs/screenshots/load_image_combined.png" alt="LoadImageCombined screenshot" width="200" /></div>
 - `PairedImageLoader` - Loads synchronized source/output pairs for A/B comparison workflows. [Docs](docs/PairedImageLoader.md)
-  <div align="center"><img src="docs/screenshots/portraitutils_paired_image_loader.png" alt="PairedImageLoader screenshot" width="300" /></div>
+  <div align="center"><img src="docs/screenshots/portraitutils_paired_image_loader.png" alt="PairedImageLoader screenshot" width="600" /></div>
 - `ComparisonGate` - Gates comparison outputs until two populated images are available. [Docs](docs/ComparisonGate.md)
 - `SimpleImageSaver` - Minimal saver with PNG/JPG, metadata toggle, and filename suffix controls. [Docs](docs/SimpleImageSaver.md)
   <div align="center"><img src="docs/screenshots/simple_image_saver.png" alt="SimpleImageSaver screenshot" width="300" /></div>
