@@ -53,7 +53,7 @@ Updating is as simple as replacing this folder and restarting.
   <div align="center"><img src="docs/screenshots/fit_aspect_head_safe.png" alt="FitAspect suite screenshot" width="500" /></div>
 - **StitchByMask**  
   Blend layers with mask-guided falloff for composites. [Guide](docs/StitchByMask.md)  
-  <div align="center"><img src="docs/screenshots/stitch_by_mask.png" alt="StitchByMask screenshot" width="300" /></div>
+  <div align="center"><img src="docs/screenshots/stitch_by_mask.png" alt="StitchByMask screenshot" width="600" /></div>
 
 ### Prompting & Configuration
 - **MultiPromptNode**  
