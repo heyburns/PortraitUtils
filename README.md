@@ -24,7 +24,7 @@ Each entry links to a short, task-oriented reference page (coming soon) for deep
 - `FitAspectHeadSafe` + `MQBBoxMin` - Subject-aware boxing with headroom-aware aspect fitting. [Docs](docs/FitAspectSuite.md)
   <div align="center"><img src="docs/screenshots/fit_aspect_head_safe.png" alt="FitAspect suite screenshot" width="500" /></div>
 - `StitchByMask` - Composites foreground and background images using mask-driven blending. [Docs](docs/StitchByMask.md)
-  <div align="center"><img src="docs/screenshots/stitch_by_mask.png" alt="StitchByMask screenshot" width="300" /></div>
+  <div align="center"><img src="docs/screenshots/stitch_by_mask.png" alt="StitchByMask screenshot" width="600" /></div>
 
 ### Prompting & Workflow Configuration
 - `MultiPromptNode` - Cycles through prompt variants with per-slot weights. [Docs](docs/MultiPromptNode.md)
