@@ -72,7 +72,7 @@ Updating is as simple as replacing this folder and restarting.
   <div align="center"><img src="docs/screenshots/load_image_combined.png" alt="LoadImageCombined screenshot" width="200" /></div>
 - **PairedImageLoader**  
   Pull matched before/after pairs for QA passes. [Guide](docs/PairedImageLoader.md)  
-  <div align="center"><img src="docs/screenshots/portraitutils_paired_image_loader.png" alt="PairedImageLoader screenshot" width="300" /></div>
+  <div align="center"><img src="docs/screenshots/portraitutils_paired_image_loader.png" alt="PairedImageLoader screenshot" width="600" /></div>
 - **ComparisonGate**  
   Hold viewers until you have two images—no more half renders. [Guide](docs/ComparisonGate.md)
 - **SimpleImageSaver**  
