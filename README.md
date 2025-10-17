@@ -40,6 +40,8 @@ Each entry links to a short, task-oriented reference page (coming soon) for deep
 - `PairedImageLoader` - Loads synchronized source/output pairs for A/B comparison workflows. [Docs](docs/PairedImageLoader.md)
   <div align="center"><img src="docs/screenshots/portraitutils_paired_image_loader.png" alt="PairedImageLoader screenshot" width="300" /></div>
 - `ComparisonGate` - Gates comparison outputs until two populated images are available. [Docs](docs/ComparisonGate.md)
+- `SimpleImageSaver` - Minimal saver with PNG/JPG, metadata toggle, and filename suffix controls. [Docs](docs/SimpleImageSaver.md)
+  <div align="center"><img src="docs/screenshots/simple_image_saver.png" alt="SimpleImageSaver screenshot" width="300" /></div>
 - `FilenameAppendSuffix` - Adds suffixes to filenames while respecting multi-extension cases. [Docs](docs/FilenameAppendSuffix.md)
   <div align="center"><img src="docs/screenshots/filename_append_suffix.png" alt="FilenameAppendSuffix screenshot" width="300" /></div>
 - `GpuSyncCacheClear` - Forces a CUDA sync and empties selected caches to avoid VRAM buildup. [Docs](docs/GpuSyncCacheClear.md)
