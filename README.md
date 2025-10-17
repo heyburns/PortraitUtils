@@ -29,47 +29,64 @@ Updating is as simple as replacing this folder and restarting.
 
 ### Image Adjustments & Preparation
 - **AutoAdjustNode + AutoColorConfigNode**  
-  Balance levels, tone, and colour. AutoAdjust mirrors Photoshop’s Auto Levels / Auto Tone / Auto Color, while AutoColorConfig shares those toggles across branches. [Guide](docs/AutoAdjustSuite.md)
+  Balance levels, tone, and colour. AutoAdjust mirrors Photoshop’s Auto Levels / Auto Tone / Auto Color, while AutoColorConfig shares those toggles across branches. [Guide](docs/AutoAdjustSuite.md)  
+  <div align="center"><img src="docs/screenshots/auto_adjust_node.png" alt="AutoAdjust suite screenshot" width="500" /></div>
 - **AutoWBColorMatch**  
-  Match white balance to a reference frame using quick presets. [Guide](docs/AutoWBColorMatch.md)
+  Match white balance to a reference frame using quick presets. [Guide](docs/AutoWBColorMatch.md)  
+  <div align="center"><img src="docs/screenshots/auto_wb_color_match.png" alt="AutoWBColorMatch screenshot" width="300" /></div>
 - **FluxResolutionPrepare**  
-  Crop and resize to Flux-friendly dimensions with optional pre-upscale. [Guide](docs/FluxResolutionPrepare.md)
+  Crop and resize to Flux-friendly dimensions with optional pre-upscale. [Guide](docs/FluxResolutionPrepare.md)  
+  <div align="center"><img src="docs/screenshots/flux_resolution_prepare.png" alt="FluxResolutionPrepare screenshot" width="300" /></div>
 - **ImageMegapixelSelector**  
-  Hit a target megapixel count to fit downstream memory limits. [Guide](docs/ImageMegapixelSelector.md)
+  Hit a target megapixel count to fit downstream memory limits. [Guide](docs/ImageMegapixelSelector.md)  
+  <div align="center"><img src="docs/screenshots/image_megapixel_selector.png" alt="ImageMegapixelSelector screenshot" width="300" /></div>
 
 ### Cropping & Framing
 - **AutoCropBorders**  
-  Remove letterbox or scanner borders with CPU/GPU options. [Guide](docs/AutoCropBorders.md)
+  Remove letterbox or scanner borders with CPU/GPU options. [Guide](docs/AutoCropBorders.md)  
+  <div align="center"><img src="docs/screenshots/auto_crop_borders.png" alt="AutoCropBorders screenshot" width="300" /></div>
 - **CropImageByMargins / CropMaskByMargins**  
-  Apply matching padding to RGB images and masks. [Guide](docs/CropByMarginsSuite.md)
+  Apply matching padding to RGB images and masks. [Guide](docs/CropByMarginsSuite.md)  
+  <div align="center"><img src="docs/screenshots/crop_image_by_margins.png" alt="Crop by margins suite screenshot" width="500" /></div>
 - **MQBBoxMin + FitAspectHeadSafe**  
-  Derive subject-aware crops with controllable headroom. [Guide](docs/FitAspectSuite.md)
+  Derive subject-aware crops with controllable headroom. [Guide](docs/FitAspectSuite.md)  
+  <div align="center"><img src="docs/screenshots/fit_aspect_head_safe.png" alt="FitAspect suite screenshot" width="500" /></div>
 - **StitchByMask**  
-  Blend layers with mask-guided falloff for composites. [Guide](docs/StitchByMask.md)
+  Blend layers with mask-guided falloff for composites. [Guide](docs/StitchByMask.md)  
+  <div align="center"><img src="docs/screenshots/stitch_by_mask.png" alt="StitchByMask screenshot" width="300" /></div>
 
 ### Prompting & Configuration
 - **MultiPromptNode**  
-  Rotate through prompt variants with per-slot weights. [Guide](docs/MultiPromptNode.md)
+  Rotate through prompt variants with per-slot weights. [Guide](docs/MultiPromptNode.md)  
+  <div align="center"><img src="docs/screenshots/multi_prompt_node.png" alt="MultiPromptNode screenshot" width="300" /></div>
 - **WorkflowConfig**  
-  Centralise run parameters, presets, and notes; outputs both sockets and a JSON bundle. [Guide](docs/WorkflowConfig.md)
+  Centralise run parameters, presets, and notes; outputs both sockets and a JSON bundle. [Guide](docs/WorkflowConfig.md)  
+  <div align="center"><img src="docs/screenshots/workflow_config.png" alt="WorkflowConfig screenshot" width="300" /></div>
 - **OutpaintConfigNode + OutpaintPaddingComputeNode**  
-  Store outpaint preferences and convert them to pixel padding per edge. [Guide](docs/OutpaintSuite.md)
+  Store outpaint preferences and convert them to pixel padding per edge. [Guide](docs/OutpaintSuite.md)  
+  <div align="center"><img src="docs/screenshots/outpaint_config_node.png" alt="Outpaint suite screenshot" width="500" /></div>
 
 ### I/O & Utilities
 - **LoadImageCombined**  
-  Hybrid single/batch loader with auto-advance support. [Guide](docs/LoadImageCombined.md)
+  Hybrid single/batch loader with auto-advance support. [Guide](docs/LoadImageCombined.md)  
+  <div align="center"><img src="docs/screenshots/load_image_combined.png" alt="LoadImageCombined screenshot" width="200" /></div>
 - **PairedImageLoader**  
-  Pull matched before/after pairs for QA passes. [Guide](docs/PairedImageLoader.md)
+  Pull matched before/after pairs for QA passes. [Guide](docs/PairedImageLoader.md)  
+  <div align="center"><img src="docs/screenshots/portraitutils_paired_image_loader.png" alt="PairedImageLoader screenshot" width="300" /></div>
 - **ComparisonGate**  
   Hold viewers until you have two images—no more half renders. [Guide](docs/ComparisonGate.md)
 - **SimpleImageSaver**  
-  Save PNG/JPG with metadata and suffix controls. [Guide](docs/SimpleImageSaver.md)
+  Save PNG/JPG with metadata and suffix controls. [Guide](docs/SimpleImageSaver.md)  
+  <div align="center"><img src="docs/screenshots/simple_image_saver.png" alt="SimpleImageSaver screenshot" width="300" /></div>
 - **FilenameAppendSuffix**  
-  Append suffixes without breaking multi-part extensions. [Guide](docs/FilenameAppendSuffix.md)
+  Append suffixes without breaking multi-part extensions. [Guide](docs/FilenameAppendSuffix.md)  
+  <div align="center"><img src="docs/screenshots/filename_append_suffix.png" alt="FilenameAppendSuffix screenshot" width="300" /></div>
 - **GpuSyncCacheClear**  
-  Flush CUDA caches mid-run to avoid VRAM creep. [Guide](docs/GpuSyncCacheClear.md)
+  Flush CUDA caches mid-run to avoid VRAM creep. [Guide](docs/GpuSyncCacheClear.md)  
+  <div align="center"><img src="docs/screenshots/gpu_sync_cache_clear.png" alt="GpuSyncCacheClear screenshot" width="300" /></div>
 - **SeedVR2Prep**  
-  Prep heavy SeedVR2 pipelines with cache priming and cleanup. [Guide](docs/SeedVR2Prep.md)
+  Prep heavy SeedVR2 pipelines with cache priming and cleanup. [Guide](docs/SeedVR2Prep.md)  
+  <div align="center"><img src="docs/screenshots/seedvr2_prep.png" alt="SeedVR2Prep screenshot" width="300" /></div>
 
 Screenshots under `docs/screenshots/` match the ComfyUI widgets so you can confirm you grabbed the right node.
 
