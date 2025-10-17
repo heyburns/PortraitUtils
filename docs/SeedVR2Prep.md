@@ -1,22 +1,44 @@
 # SeedVR2Prep
 
+`SeedVR2Prep` prepares heavy SeedVR2 workflows by warming up caches, priming key models, and cleaning up afterward. Think of it as a one-button “get ready to render” helper for VRAM-intensive runs.
 
-## Overview
-`SeedVR2Prep` prepares images for SeedVR2 and other VRAM-sensitive pipelines by enforcing even dimensions and optionally converting tensors to FP16 on the GPU. It ensures data is in `[B, H, W, 3]` format, repeating channels as necessary.
+---
 
 ## Inputs
-- `image` (`IMAGE`): Input tensor. Non-tensor inputs are converted to `torch.Tensor` before processing.
-- `ensure_even_dims` (`BOOLEAN`, default `True`): When enabled, trims or pads by repeating edge pixels so both width and height are even.
-- `to_fp16_on_gpu` (`BOOLEAN`, default `True`): If CUDA is available, moves the tensor to GPU and converts it to float16.
+- `run_warmup` – Execute the warmup pass, loading and touching key models so the first real render doesn’t spike.
+- `warmup_steps` – Number of dummy steps to run during warmup. Higher values build a larger cache but take longer.
+- `clear_after` – Free caches once the main job finishes. Leave on if you’re about to switch projects.
+- `log_only` – When `True`, print what would happen without actually running warmup or cleanup. Useful for testing.
+- `notes` – Free-form text stored alongside the log output.
+
+---
 
 ## Outputs
-- `image` (`IMAGE`): Sanitised tensor with even dimensions and optional FP16 GPU residency.
+- `log` – Summary of warmup and cleanup actions.
+- `status` – Simple text flag (`ready`, `skipped`, `cleared`) for downstream branching.
 
-## Processing Notes
-- Channel counts greater than 3 are truncated to RGB; single-channel inputs are repeated across RGB.
-- Padding when width/height equals 1 duplicates the final column/row so dimensions never drop to zero.
-- FP16 conversion only occurs when CUDA is available; otherwise the data remains on CPU in float32.
+---
 
-## Tips
-- Place this node right before VRAM-heavy samplers to cut down on memory usage and avoid odd-dimension errors.
-- Disable `to_fp16_on_gpu` if a downstream node expects CPU tensors or full precision.*** End Patch
+## Where It Fits
+
+Drop SeedVR2Prep at the start of VRAM-heavy SeedVR2 graphs when you need stable runtimes or when the first render tends to hitch due to lazy model loading. Run it again at the end to clean up before switching to a different project or model set.
+
+---
+
+## Tuning Tips
+
+- Start with a modest `warmup_steps` count (e.g., 5) and increase only if the first render still stutters.
+- Leave `clear_after` enabled on shared machines so other users get a clean slate.
+- Toggle `log_only` during setup to verify the node sees the right models before committing to a full warmup.
+
+---
+
+## Troubleshooting
+
+- **Warmup takes too long** – Lower `warmup_steps` or limit which models participate in warmup within your workflow.
+- **VRAM still spikes on first render** – Ensure `run_warmup` is enabled and the node executes before the main generation block.
+- **Cleanup skipped** – Check that `clear_after` is toggled on and the node executes after your main render branch.
+
+---
+
+Screenshot: `docs/screenshots/seedvr2_prep.png`

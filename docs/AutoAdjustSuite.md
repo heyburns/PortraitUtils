@@ -1,54 +1,65 @@
 # AutoAdjust Suite
 
-## Overview
-`AutoAdjustNode` performs the heavy lifting for global levels, tone, and colour balancing, while `AutoColorConfigNode` keeps the corresponding toggles in sync across multiple branches. Use the config node to drive one or more adjustment nodes so you can change a single widget panel and broadcast the desired combination of levels/tone/colour/flip options to every branch that needs them.
+`AutoAdjustNode` gives photos a quick “auto levels / auto tone / auto color” pass similar to Photoshop. `AutoColorConfigNode` is the helper dial that lets you toggle those same options across several branches at once.
+
+---
 
 ## AutoAdjustNode
 
 ### Inputs
-- `image` (`IMAGE`): Source tensor shaped `[B, H, W, C]` (C must be 3 or 4; alpha is dropped).
-- `precision` (`STRING`): `"Histogram (fast)"` uses 256-bin histograms for percentile estimates; `"Exact"` calls `torch.quantile`.
-- `auto_levels` (`BOOLEAN`, default `True`): Enables global min/max remapping based on luma percentiles.
-- `levels_shadow_clip_pct` (`FLOAT`, default `0.1`): Percentage of darkest pixels to clip for the low anchor.
-- `levels_highlight_clip_pct` (`FLOAT`, default `0.1`): Percentage of brightest pixels to clip for the high anchor.
-- `levels_gamma_normalize` (`BOOLEAN`, default `False`): Pulls midtones toward 50% grey when the median luma sits between 35% and 65%.
-- `auto_tone` (`BOOLEAN`, default `True`): Toggles the tone-mapping stage.
-- `tone_mode` (`STRING`, default `"Per-channel"`): `"Per-channel"` stretches each channel independently; `"Monochromatic"` uses a luma-derived curve.
-- `tone_shadow_clip_pct` (`FLOAT`, default `0.1`): Shadow percentile for the tone stage.
-- `tone_highlight_clip_pct` (`FLOAT`, default `0.1`): Highlight percentile for the tone stage.
-- `auto_color` (`BOOLEAN`, default `True`): Recentres the Cb/Cr components in YCbCr space.
-- `snap_neutral_midtones` (`BOOLEAN`, default `False`): Restricts the colour-balancing statistics to pixels with luma in `[0.2, 0.8]`.
-- `flip_horizontal` (`BOOLEAN`, default `False`): Horizontally mirrors the result as a final step.
+- `image` – The picture you want to clean up; feed it from any loader or crop.
+- `precision` – Choose `Histogram (fast)` for everyday batches or `Exact` when you notice uneven results and want a pixel-perfect read.
+- `auto_levels` – Stretch shadows and highlights so the full brightness range is used.
+- `levels_shadow_clip_pct` – Percentage of darkest pixels to shave off while stretching. Lower = gentler.
+- `levels_highlight_clip_pct` – Same idea for the brightest pixels.
+- `levels_gamma_normalize` – Gently nudge midtones toward middle grey so portraits don’t look flat.
+- `auto_tone` – Adds a second balancing pass that adjusts each colour channel separately.
+- `tone_mode` – `Per-channel` boosts each colour independently for punchier contrast; `Monochromatic` keeps colour relationships intact.
+- `tone_shadow_clip_pct` / `tone_highlight_clip_pct` – How aggressive that second pass should be in shadows and highlights.
+- `auto_color` – Remove colour casts (too cool, too warm) automatically.
+- `snap_neutral_midtones` – Focus the colour fix on midtones so highlights don’t overpower the adjustment.
+- `flip_horizontal` – Mirror the image left/right without adding another node.
 
-### Outputs
-- `IMAGE`: RGB tensor with the enabled stages applied in order (levels → tone → colour → optional flip).
+### Output
+- `image` – The adjusted photo, clamped to `[0, 1]` and ready for your next node.
 
-### Processing Notes
-- All operations run in float32 `[0, 1]`; the node coerces inputs and clamps outputs accordingly.
-- Levels and tone stages guard against degenerate ranges (identical min/max) and fall back to minimal stretching.
-- Colour balancing works in YCbCr; `snap_neutral_midtones` switches from mean to masked median stats to avoid highlight/shadow bias.
-- Any supplied alpha channel is intentionally removed so downstream nodes receive consistent RGB tensors.
+---
 
 ## AutoColorConfigNode
 
-### Inputs
-- `auto_levels` (`BOOLEAN`, default `False`): Desired state for the levels stage.
-- `auto_tone` (`BOOLEAN`, default `False`): Desired state for the tone stage.
-- `auto_color` (`BOOLEAN`, default `False`): Desired state for the colour balance stage.
-- `flip_horizontal` (`BOOLEAN`, default `False`): Indicates whether downstream nodes should flip horizontally.
+Use this helper when you want multiple `AutoAdjustNode` blocks to respond to the same switches.
 
-### Outputs
-- `auto_levels` (`BOOLEAN`)
-- `auto_tone` (`BOOLEAN`)
-- `auto_color` (`BOOLEAN`)
-- `flip_horizontal` (`BOOLEAN`)
+### Inputs / Outputs
+- `auto_levels`
+- `auto_tone`
+- `auto_color`
+- `flip_horizontal`
 
-### Usage Notes
-- Wire the outputs directly into matching sockets on one or more `AutoAdjustNode` instances to keep their toggles synchronised.
-- Because outputs are plain booleans, they work well with conditional routers or scripting nodes that expect simple data types.
-- The node stores no internal state; it simply forwards the widget values, making it safe to duplicate anywhere you need the same preset.
+Each input is a simple checkbox, and each output mirrors that value. Wire the outputs straight into matching inputs on any `AutoAdjustNode` instances you want to keep in lockstep.
 
-## Tips
-- `"Exact"` precision is typically faster for batch workloads despite the name; switch back to `"Histogram (fast)"` only if you see quantile-related performance issues.
-- Set both clip percentages to zero whenever you must preserve the full tonal range (for HDR hand-offs or forensic workflows).
-- Use `AutoColorConfigNode` to maintain a master switch panel that feeds parallel branches (e.g., differing crops or upscale streams) so every branch stays in lockstep without duplicating toggle widgets.
+---
+
+## Where It Fits
+
+Drop AutoAdjust at the top of a portrait pipeline when you need a neutral base grade before creative work. It also shines when batch-cleaning camera JPGs with mixed lighting or prepping reference frames for diffusion and upscaling jobs.
+
+---
+
+## Tuning Tips
+
+- Lower the clip percentages when you must protect detail in highlights or shadows.
+- Switch to `Exact` precision for small batches, archival scans, or whenever histogram estimates wobble.
+- Enable `snap_neutral_midtones` for tungsten or mixed indoor lighting to keep skin tones believable.
+- Use the flip toggle during QA passes to spot composition issues or prep mirrored training data.
+
+---
+
+## Troubleshooting
+
+- **Image looks flat** – Try disabling `auto_tone` or reduce the tone clip percentages.
+- **Colours drift too far** – Turn off `auto_color`, or enable `snap_neutral_midtones` for a gentler fix.
+- **No visible change** – Confirm `auto_levels` is on and both clip percentages aren’t set to zero.
+
+---
+
+See `docs/screenshots/auto_adjust_node.png` for the widget layout inside ComfyUI.

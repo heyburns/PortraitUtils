@@ -1,32 +1,52 @@
 # AutoCropBorders
 
+`AutoCropBorders` trims uniform borders from photos—think scanner edges, letterbox bars, or projector frames—before the image moves deeper into your workflow.
 
-## Overview
-`AutoCropBorders` trims uniform borders from an image by sampling edge pixels, estimating their colour statistics, and region-growing inward until the content changes. It optionally returns the detected border mask and reports the crop rectangle, making it useful for automated subject isolation or pre-processing scanned artwork.
+---
 
 ## Inputs
-- `image` (`IMAGE`): Tensor `[B, H, W, C]`. Values are clamped to `[0, 1]` and converted to float32.
-- `fuzz_mode` (`STRING`, default `"adaptive"`): `"percent"` uses a fixed threshold derived from `fuzz_percent`; `"adaptive"` widens the tolerance based on border variance (`adaptive_k` multiplier).
-- `fuzz_percent` (`FLOAT`, default `5.0`): Maximum per-channel deviation (in 0–100%) allowed when classifying border pixels in `"percent"` mode.
-- `adaptive_k` (`FLOAT`, default `2.0`): Multiplier applied to the median absolute deviation to set per-channel thresholds in `"adaptive"` mode.
-- `edge_margin_px` (`INT`, default `4`): Width of the seed strip sampled along each edge to build the border colour model.
-- `pad_px` (`INT`, default `0`): Expands the resulting crop box outward by this many pixels (after detection).
-- `use_luma_only` (`BOOLEAN`, default `False`): If `True`, detection runs on luma; otherwise it operates in RGB space.
-- `max_growth_iter` (`INT`, default `4096`): Upper bound on the number of dilation iterations when growing the border region.
-- `return_border_mask` (`BOOLEAN`, default `False`): When enabled, outputs the binary border mask aligned with the cropped image.
-- `use_gpu` (`BOOLEAN`, default `True`): Moves temporary tensors to CUDA when available for faster region-growing.
+- `image` – The photo you want to clean; connect any RGB image tensor.
+- `fuzz_mode` – Choose how tolerant the detector should be:
+  - `adaptive` widens the tolerance automatically based on border noise.
+  - `percent` sticks to the value from `fuzz_percent`.
+- `fuzz_percent` – Maximum colour variation allowed when `percent` mode is active. Lower values assume a perfectly uniform border.
+- `adaptive_k` – Multiplier used in `adaptive` mode; higher values accept noisier borders.
+- `edge_margin_px` – Width of the strip sampled on each side to learn the border colour. Increase for thicker frames.
+- `pad_px` – Expand the final crop box by this many pixels if you want a little breathing room.
+- `use_luma_only` – When `True`, the decision runs on brightness only instead of full RGB. Handy for black-and-white content.
+- `max_growth_iter` – Safety cap on how many expansion steps the border mask can take.
+- `return_border_mask` – Toggle to output the detected border mask alongside the cropped image.
+- `use_gpu` – When `True`, temporary tensors jump to CUDA. Disable on tight VRAM budgets.
+
+---
 
 ## Outputs
-- `image` (`IMAGE`): Cropped RGB tensor with even dimensions enforced.
-- `left` (`INT`), `top` (`INT`), `width` (`INT`), `height` (`INT`): Crop rectangle relative to the original image (`width`/`height` coerced to even when possible).
-- `border_mask` (`MASK`): Binary mask of removed borders, resized to the cropped output. Zero tensor when `return_border_mask` is `False`.
+- `image` – The cropped photo with even width and height where possible.
+- `left`, `top`, `width`, `height` – Crop rectangle relative to the original image.
+- `border_mask` – Binary mask of removed borders (zeroed out when the mask output is disabled).
 
-## Processing Notes
-- The algorithm samples all four edges, computes medians and median absolute deviations, then grows a binary mask starting from the border strips.
-- Detected borders are dilated and optionally padded, after which the surviving region is cropped and padded to even dimensions for latent-friendly downstream nodes.
-- When `return_border_mask` is `False`, the mask socket is still supplied but contains zeros to simplify downstream wiring.
+---
 
-## Tips
-- Raise `edge_margin_px` for thicker frames to capture more representative samples.
-- Switch to `"percent"` mode with a low `fuzz_percent` when dealing with synthetic borders that have exact RGB values.
-- Disable `use_gpu` on systems with limited VRAM; the logic gracefully continues on CPU.*** End Patch
+## Where It Fits
+
+Use AutoCropBorders on scanned headshots or production stills before resizing or running diffusion. It quickly removes black bars from footage exports so downstream nodes don’t waste cycles on empty pixels.
+
+---
+
+## Tuning Tips
+
+- Switch to `percent` mode with a low `fuzz_percent` when dealing with perfectly solid borders (e.g., exact RGB black).
+- Bump `edge_margin_px` for thicker frames so the sampler grabs enough context.
+- Disable `use_gpu` if you are processing long batches on a shared card; the CPU path is slower but reliable.
+
+---
+
+## Troubleshooting
+
+- **Border remains** – Increase `fuzz_percent` (in percent mode) or `adaptive_k` (in adaptive mode) so minor noise doesn’t block detection.
+- **Image cropped too tightly** – Raise `pad_px` or reduce the fuzz tolerance so fewer pixels are marked as border.
+- **Unexpected slivers left behind** – Check that `max_growth_iter` isn’t too low for high-resolution images; raising it lets the mask reach the true content edge.
+
+---
+
+Screenshot: `docs/screenshots/auto_crop_borders.png`

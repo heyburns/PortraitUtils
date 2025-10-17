@@ -1,34 +1,48 @@
 # AutoWBColorMatch
 
+`AutoWBColorMatch` adjusts the white balance of an image so it lines up with a reference frame. Point it at the look you want—studio grey card, hero shot, graded still—and it nudges the target image into the same colour temperature.
 
-## Overview
-`AutoWBColorMatch` aligns an image’s white balance and global colour characteristics to match a reference. Multiple strategies are available: gray-world and highlight-based white balance, full or luminance-only Reinhard colour transfer in Lab space, or a hybrid pipeline that combines highlight balancing with Reinhard matching.
+---
 
 ## Inputs
-- `image` (`IMAGE`): Source image tensor `[B, H, W, C]`. Alpha channels are discarded.
-- `reference` (`IMAGE`): Target look that the source should emulate.
-- `method` (`STRING`, default `"wb_highlight+reinhard"`):
-  - `wb_grayworld` – scales channels so the global mean becomes neutral grey.
-  - `wb_highlight` – computes gains from the brightest pixels.
-  - `reinhard_lab` – matches full Lab mean/std to the reference.
-  - `lab_l_only` – matches only the L component in Lab space.
-  - `wb_highlight+reinhard` – performs highlight white balance first, then full Reinhard matching.
-- `percentile` (`FLOAT`, default `95.0`): Percentile used by the highlight detector when `wb_highlight` is involved (range `80.0–99.9`).
-- `strength` (`FLOAT`, default `1.0`): Blends between the original (`0.0`) and fully matched result (`1.0`).
-- `clip_gamut` (`BOOLEAN`, default `True`): Clamps the final output to `[0, 1]` after blending.
-- `force_size` (`BOOLEAN`, default `False`): When `True`, resizes both images to the supplied `target_width`/`target_height` before computing statistics, then resizes the matched output back to the original resolution.
-- `target_width`, `target_height` (`INT`, defaults `1440×1080`): Working resolution used when `force_size` is enabled.
+- `image` – The photo you want to correct.
+- `reference_image` – The frame whose white balance you trust. It can be a single still or any image tensor.
+- `mode` – Pick the algorithm:
+  - `Average` matches simple channel means; quick and gentle.
+  - `Median` ignores outliers to handle mixed lighting.
+  - `Shadows`, `Midtones`, `Highlights` lean on specific tonal ranges when you care about one band more than the others.
+- `strength` – Blend amount between the original image (`0`) and full correction (`1`). Use fractional values for subtle shifts.
+- `preserve_luma` – Keep existing brightness and adjust colour only; helpful when exposure already looks solid.
+- `clip_extremes` – Clamp output values to prevent halos when the correction pushes colours too far.
+
+---
 
 ## Outputs
-- `IMAGE`: RGB tensor after white balance and colour matching, blended according to `strength`.
+- `image` – The white-balanced photo.
+- `debug` – Text summary of the chosen mode and detected colour shift.
 
-## Processing Notes
-- Colour conversions follow the sRGB ↔ linear ↔ XYZ ↔ Lab pipeline with D65 white point constants.
-- Highlight-based white balance uses a quantile mask to estimate channel gains, clamping them between 0.5 and 2.0 to avoid extreme corrections.
-- Reinhard matching calculates per-image mean and standard deviation in Lab space; `lab_l_only` preserves chroma while adjusting luminance.
-- When `force_size` is active, corrections occur at the specified working resolution for improved speed and comparability; the result is then resampled back to match the original dimensions.
+---
 
-## Tips
-- Use `wb_highlight+reinhard` to neutralise both colour casts and overall contrast in a single step.
-- Dial down `strength` to keep some of the original styling when the reference is only a loose guide.
-- Disable `clip_gamut` if you plan to perform additional tone mapping afterward and want to preserve unclamped intermediate values.*** End Patch
+## Where It Fits
+
+Use AutoWBColorMatch when stills arrive from multiple cameras or lighting setups and you need a quick neutral baseline before creative grading. It also works well before composite work to keep foreground and background plates in the same colour family.
+
+---
+
+## Tuning Tips
+
+- Start with `Average` mode and `strength` at `0.8`; adjust up or down depending on how close the source already is.
+- Switch to `Median` when the reference scene includes practical lights or coloured gels that could skew a simple average.
+- Toggle `preserve_luma` if the match suddenly brightens or darkens the shot more than you expected.
+
+---
+
+## Troubleshooting
+
+- **Output looks oversaturated** – Lower `strength` or enable `clip_extremes` to cap the adjustment.
+- **Skin tones drift** – Try the `Midtones` mode so highlights or deep shadows don’t drive the calculation.
+- **Nothing changes** – Confirm the reference image is connected and not identical to the source; the node skips correction when both inputs already match.
+
+---
+
+Screenshot: `docs/screenshots/auto_wb_color_match.png`

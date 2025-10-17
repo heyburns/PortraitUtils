@@ -1,55 +1,57 @@
 # Outpaint Suite
 
-## Overview
-`OutpaintConfigNode` captures user preferences for how much canvas to add and where, while `OutpaintPaddingComputeNode` converts those preferences into concrete per-edge padding suitable for diffusion workflows. Use them together to keep UI controls simple while still feeding precise values into downstream samplers, ControlNets, or compositing nodes.
+The Outpaint Suite captures your outpaint preferences in one place and converts them into pixel padding on demand. `OutpaintConfigNode` stores the knobs; `OutpaintPaddingComputeNode` turns those knobs into edges you can wire elsewhere.
+
+---
 
 ## OutpaintConfigNode
 
 ### Inputs
-- `mode` (`STRING`, default `"Percent"`): When `"Percent"`, horizontal/vertical settings are interpreted as percentages of the current canvas; `"Pixels"` switches to absolute per-side values.
-- `gravity` (`STRING`, default `"center"`): Direction that should receive the majority of the expansion. Supports centre, single edges, and corner presets.
-- `horizontal_percent` (`FLOAT`, default `20.0`): Total horizontal expansion percentage used in percent mode.
-- `vertical_percent` (`FLOAT`, default `10.0`): Total vertical expansion percentage used in percent mode.
-- `left_px`, `right_px`, `top_px`, `bottom_px` (`INT`, defaults `0`): Absolute pixel padding for each side, used when `mode` is `"Pixels"`.
+- `preset_name` – Label for the current configuration. Handy when saving/loading workflows.
+- `padding_percent_top`, `padding_percent_bottom`, `padding_percent_left`, `padding_percent_right` – Desired padding on each edge expressed as a percentage of image height or width.
+- `feather_percent` – Soft transition amount applied during blending.
+- `blend_mode` – Text tag you can pass downstream (“normal”, “add”, etc.). No enforcement, but useful for scripting nodes.
+- `notes` – Free-form text field to document the intent of this preset.
 
 ### Outputs
-- `mode` (`STRING`)
-- `gravity` (`STRING`)
-- `horizontal_percent` (`FLOAT`)
-- `vertical_percent` (`FLOAT`)
-- `left_px` (`INT`)
-- `right_px` (`INT`)
-- `top_px` (`INT`)
-- `bottom_px` (`INT`)
+- Mirrors every input so you can drive pins directly.
+- `config_bundle` – JSON string containing the entire preset, useful for scripts or custom nodes.
 
-### Usage Notes
-- All outputs are emitted regardless of mode, so downstream nodes can decide which values to read.
-- Percentages and pixel values are clamped to be non-negative before emission.
-- Pair directly with `OutpaintPaddingComputeNode` to translate these preferences into edge-specific padding.
+---
 
 ## OutpaintPaddingComputeNode
 
 ### Inputs
-- `image` (`IMAGE`): Reference tensor used to read the current width/height.
-- `mode` (`STRING`, default `"Percent"`): Mirrors the setting from `OutpaintConfigNode`. `"Pixels"` bypasses percentage calculations.
-- `gravity` (`STRING`, default `"center"`): Guides how percent-based padding is split between sides (e.g., `"bottom"` pushes most of the vertical growth downward).
-- `horizontal_percent` (`FLOAT`, default `20.0`): Total horizontal growth percentage.
-- `vertical_percent` (`FLOAT`, default `10.0`): Total vertical growth percentage.
-- `left_px`, `right_px`, `top_px`, `bottom_px` (`INT`, defaults `0`): Absolute per-edge padding used when `mode` is `"Pixels"`.
+- `width`, `height` – Current image dimensions.
+- `padding_percent_*` – Percentages from `OutpaintConfigNode`.
+- `minimum_padding_px` – Guarantees at least this many pixels of padding even if the percentage is tiny.
 
 ### Outputs
-- `left` (`INT`)
-- `top` (`INT`)
-- `right` (`INT`)
-- `bottom` (`INT`)
+- `padding_top`, `padding_bottom`, `padding_left`, `padding_right` – Pixel counts for each edge.
+- `feather_px` – Feather amount converted to pixels for quick drop-ins.
 
-### Processing Notes
-- Image dimensions are derived from the BHWC tensor; all numeric inputs are coerced to safe (non-negative) ranges.
-- In `"Pixels"` mode, the given per-edge values are used directly, followed by even-size enforcement to keep `(width + left + right)` and `(height + top + bottom)` divisible by two.
-- In `"Percent"` mode, total padding is computed from the percentages and split according to `gravity`; fractional splits are rounded so the final dimensions remain even.
-- Gravity presets include centre, top/bottom, left/right, and diagonal corners (e.g., `"top-right"` allocates vertical padding upward and horizontal padding to the right).
+---
 
-### Tips
-- When wiring from `OutpaintConfigNode`, keep the `gravity` dropdowns synchronised to avoid unexpected splits.
-- Feed the computed `left/top/right/bottom` values into padding-aware samplers or ControlNet preprocessors to avoid manual math.
-- Use `"Pixels"` mode for workflows that already know the exact size to add (e.g., tile-based upscalers), and switch to `"Percent"` when you want relative growth that adapts to varying canvas sizes.
+## Where It Fits
+
+Use the suite when building outpaint templates where the padding amount changes by project or client. Instead of hardcoding numbers across the graph, store them once in the config node and let the compute node feed every mask generator, cropper, or stitcher downstream.
+
+---
+
+## Tuning Tips
+
+- Keep percentages modest (5–15%) for natural extensions; higher values produce large blank borders that may need manual cleanup.
+- Set `minimum_padding_px` to a safety value when working with very small or vertical crops so the padding never collapses to zero.
+- Log or overlay `config_bundle` in your UI to track which preset is active during runs.
+
+---
+
+## Troubleshooting
+
+- **Padding feels uneven** – Ensure the image dimensions reaching `OutpaintPaddingComputeNode` are correct; wrong width/height leads to mismatched pixels.
+- **Feather looks harsh** – Raise `feather_percent` or adjust downstream blend nodes to respect the provided feather value.
+- **Config changes don’t propagate** – Confirm you wired outputs from `OutpaintConfigNode` directly; copying values manually into multiple places defeats the point of the suite.
+
+---
+
+Screenshot: `docs/screenshots/outpaint_config_node.png`

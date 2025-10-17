@@ -1,58 +1,65 @@
 # FitAspect Suite
 
-## Overview
-`MQBBoxMin` finds a reliable subject bounding box from a mask, and `FitAspectHeadSafe` expands that box into a camera-friendly crop that honours headroom, footroom, and target aspects. Use them together when you need to translate noisy mask data into consistent portrait framing for downstream workflows.
+`MQBBoxMin` finds a reliable subject box inside a mask, and `FitAspectHeadSafe` grows that box into a crop that respects your target aspect ratios with controllable head and foot room. Together they turn imperfect masks into camera-friendly framing.
+
+---
 
 ## MQBBoxMin
 
 ### Inputs
-- `mask` (`MASK`): Input tensor in any supported mask layout; internally converted to a 2D float array.
-- `invert_mask` (`STRING`, default `"auto"`): Determines which side of the mask is treated as foreground. `"auto"` picks the side with less border mass, `"false"` leaves the mask untouched, `"true"` flips it.
-- `q_left`, `q_right`, `q_top`, `q_bottom` (`FLOAT`, defaults `0.005` / `0.995`): Quantiles used to trim outliers along each axis and focus on the subject.
-- `min_span_px` (`INT`, default `8`): Enforces a minimum width/height after quantile trimming to prevent degenerate boxes.
-- `tight_crop` (`BOOLEAN`, default `False`): When `False`, returns the full image bounds. When `True`, resolves a tight subject box with safety margins and matches legal aspect ratios.
+- `mask` – Binary or soft mask of your subject. Any layout supported by ComfyUI works.
+- `invert_mask` – Tells the node which side of the mask is foreground: `auto` guesses, `true` flips, `false` keeps as-is.
+- `q_left`, `q_right`, `q_top`, `q_bottom` – Percentile cuts that trim stray pixels. Raise them if the mask includes clutter.
+- `min_span_px` – Minimum width/height allowed after trimming to avoid zero-sized boxes.
+- `tight_crop` – When `True`, emit the trimmed subject box; when `False`, fall back to the full image bounds.
 
 ### Outputs
-- `x`, `y`, `w`, `h` (`INT`): Pixel-space bounding box coordinates relative to the mask.
-- `debug` (`STRING`): Notes on foreground selection, quantile bounds, padding, and any aspect adjustments performed.
+- `x`, `y`, `w`, `h` – Bounding box coordinates in pixels.
+- `debug` – Text summary of the mask decision and adjustments made.
 
-### Processing Notes
-- Masks are normalised to `[0, 1]` with automatic dtype conversion when required.
-- Axis-wise cumulative sums yield stable quantile bounds even for noisy masks or partial coverage.
-- The routine inflates the quantile box by proportional padding before searching for a minimal-area rectangle that matches the image aspect ratio; common portrait ratios (1:1, 2:3, 3:4, 9:16, etc.) are evaluated as fallbacks.
-- If no aspect candidate can contain the subject, the raw quantile rectangle is returned.
-
-### Tips
-- Feed the resulting `x`, `y`, `w`, `h` directly into `FitAspectHeadSafe` for refined framing.
-- Increase `min_span_px` when working with very thin masks (e.g., profile subjects) to stabilise the output.
-- Prefer `"true"` for `invert_mask` when you know the mask stores background as white; it avoids mis-detection in border-heavy images.
+---
 
 ## FitAspectHeadSafe
 
 ### Inputs
-- `image` (`IMAGE`): Reference image used to read base dimensions.
-- `x`, `y`, `w`, `h` (`INT`): Subject bounding box (typically from `MQBBoxMin`). Coordinates are absolute pixels relative to the original image.
-- `aspects_csv` (`STRING`, default `"2:3,3:4,1:1,9:16,16:9,5:8,8:5"`): Comma-separated list of target aspect ratios (`width:height`), supporting portrait and landscape mixes.
-- `match_to` (`STRING`, default `"mq_box"`): `"mq_box"` compares the candidate list to the subject box; `"image"` matches the full image aspect.
-- `headroom_ratio` (`FLOAT`, default `0.12`): Fraction of the candidate height reserved above the subject when expanding the crop.
-- `footroom_ratio` (`FLOAT`, default `0.06`): Fraction reserved below the subject.
-- `side_margin_ratio` (`FLOAT`, default `0.08`): Lateral padding as a fraction of the candidate width.
-- `bottom_priority` (`FLOAT`, default `0.75`): Weighting applied when reconciling head/foot constraint violations; higher values favour keeping the lower margin (useful when feet should remain in frame).
-- `horiz_gravity` (`STRING`, default `"center"`): Horizontal anchoring for the final crop (`"left"`, `"center"`, `"right"`).
+- `image` – The original image used to read dimensions.
+- `x`, `y`, `w`, `h` – Subject box from `MQBBoxMin` or any custom bounding box.
+- `aspects_csv` – Comma-separated aspect ratios like `2:3,3:4,1:1`. Order them by priority.
+- `match_to` – Compare candidate ratios to the subject box (`mq_box`) or the full image (`image`).
+- `headroom_ratio` – Portion of the crop reserved above the subject.
+- `footroom_ratio` – Portion reserved below the subject.
+- `side_margin_ratio` – Horizontal padding on each side.
+- `bottom_priority` – Weight that favours keeping the lower margin when space is tight (1.0 = full priority to the bottom).
+- `horiz_gravity` – Anchor the crop left, centre, or right when extra width remains.
 
 ### Outputs
-- `w` (`INT`), `h` (`INT`): Width and height of the computed crop rectangle.
-- `x` (`INT`), `y` (`INT`): Top-left coordinate of the recommended crop within the original image.
-- `aspect_used` (`STRING`): Chosen ratio from `aspects_csv`.
-- `debug` (`STRING`): Trace information describing ratio selection, margin application, and constraint violations.
+- `w`, `h`, `x`, `y` – Final crop dimensions and position.
+- `aspect_used` – Ratio that won the selection.
+- `debug` – Notes about ratio choice, padding, and clamping.
 
-### Processing Notes
-- Candidate aspect ratios are parsed, compared against the chosen `match_to` basis, and the closest ratio is selected.
-- The subject rectangle is expanded with the requested margins; `_cover_min_rect` finds the smallest rectangle matching the target aspect that still covers the desired region.
-- Vertical placement is scored using weighted violations so the crop respects head/foot priorities before clamping to image bounds.
-- All outputs are rounded to integers; the crop never extends beyond the source image.
+---
 
-### Tips
-- Supply both portrait and landscape ratios when a single workflow needs to handle varying orientations.
-- Inspect the `debug` string while tuning headroom/footroom values; it reports the exact padding applied and any adjustments made during clamping.
-- When subjects include footwear or lower-body details, raise `bottom_priority` to bias the crop toward preserving footroom.
+## Where It Fits
+
+Use the suite when you receive portrait masks from detectors or rotoscopers and need predictable headroom before feeding images into Flux, upscalers, or design layouts. It’s also handy for social deliverables that demand specific aspect ratios (1:1, 4:5, 9:16) without chopping off heads or feet.
+
+---
+
+## Tuning Tips
+
+- Increase `min_span_px` in `MQBBoxMin` for skinny subjects so the box doesn’t collapse.
+- List your preferred aspects first in `aspects_csv`; the node tries them in order of closeness.
+- Adjust `headroom_ratio` and `footroom_ratio` to match the style you’re after—more headroom for fashion, more footroom for full-body shots.
+- Use the `debug` outputs while tuning; they spell out why a particular aspect or offset was chosen.
+
+---
+
+## Troubleshooting
+
+- **Subject gets clipped** – Raise padding ratios or reduce `bottom_priority` so the crop floats higher.
+- **Wrong aspect selected** – Ensure your desired ratio is included in `aspects_csv` and check the debug log to see why another ratio won.
+- **Output exceeds image bounds** – The node clamps to the original dimensions; if you need extra space, pad the image before running the suite.
+
+---
+
+Screenshot: `docs/screenshots/fit_aspect_head_safe.png`

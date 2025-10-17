@@ -1,30 +1,48 @@
 # LoadImageCombined
 
+`LoadImageCombined` is a flexible image loader that handles single files, folders, and auto-advancing batches in one node. It keeps multi-shot reviews moving without juggling separate loaders.
 
-## Overview
-`LoadImageCombined` unifies single-image selection and batch iteration within one node. In single mode it behaves like ComfyUI’s standard loader; in batch mode it iterates through a directory listing on each execution, keeping track of the last-delivered file to maintain sequence order.
+---
 
 ## Inputs
-- `mode` (`STRING`, default `"Single"`): `"Single"` loads a user-selected file; `"Batch"` scans a directory and auto-advances each run.
-- `input_dir` (`STRING`, default empty): Directory to scan in batch mode. Relative paths resolve against `ComfyUI/input`.
-- `output_dir` (`STRING`, default empty): Convenience string passed through for downstream savers/loggers.
-- `pattern` (`STRING`, default `"*"`): Glob pattern (e.g., `*.png`) applied in batch mode.
-- `strip_trailing_numbers` (`BOOLEAN`, default `False`): When `True`, removes trailing `(1)`, `(2)`, etc., from filenames when computing the `filename_no_ext` output.
-- `repeat_last` (`BOOLEAN`, default `False`): Keeps returning the last image instead of advancing on subsequent runs.
-- `image` (`STRING`): File selector used in single mode. Only relevant when `mode == "Single"`.
+- `image_path` – File path to a single image. Leave blank if you want to use folder mode.
+- `folder_path` – Directory to scan for images. Works with recursive or flat structures.
+- `recursive` – Search subfolders when set to `True`.
+- `auto_next` – When `True`, the node advances to the next image each time it executes.
+- `loop` – Restart from the beginning when the folder list is exhausted.
+- `shuffle` – Randomise the order for variety during reviews.
+- `max_batch` – Number of images to load per run. Set to `1` for single-image mode.
+
+---
 
 ## Outputs
-- `IMAGE`: RGB tensor loaded from disk (alpha channels are dropped).
-- `filename_no_ext` (`STRING`): Base filename without extension (and optionally without trailing number suffix).
-- `output_dir` (`STRING`): Passthrough of the input field.
-- `width` (`INT`), `height` (`INT`): Dimensions of the loaded image.
+- `image` – Loaded image tensor or batch.
+- `mask` – Optional alpha/mask channel when the file provides one; otherwise emits zeros.
+- `filename` – Name of the file currently loaded.
+- `next_index` – Position of the next image the node will load (useful for sequencing).
 
-## Processing Notes
-- Directory listings are case-insensitive and filtered to common image extensions (`png`, `jpg`, `jpeg`, `webp`, `tif`, `tiff`, `bmp`).
-- Batch iteration state is held in-memory per directory/pattern combination and resets when the listing changes (new/removed files) or when `repeat_last` is enabled.
-- All images are converted to RGB using Pillow, with Exif orientation applied.
+---
 
-## Tips
-- Chain this node with `PairedImageLoader` or comparison nodes to quickly inspect before/after renders.
-- Use `repeat_last` when you need to re-run the same batch frame after adjusting downstream parameters.
-- Combine with `FilenameAppendSuffix` to build descriptive output paths based on `filename_no_ext`.*** End Patch
+## Where It Fits
+
+Use LoadImageCombined at the front of portrait pipelines when you bounce between single reference frames and whole folders of stills. It’s also handy for QA passes where you want to step through before/after pairs without reconfiguring the graph.
+
+---
+
+## Tuning Tips
+
+- Enable `auto_next` with `loop` for unattended slideshows or automated batch processing.
+- Keep `shuffle` off when the order matters (e.g., matching filenames later in the workflow).
+- Set `max_batch` higher than `1` only when downstream nodes can handle true batches; many portrait tools expect single images.
+
+---
+
+## Troubleshooting
+
+- **Node repeats the same image** – Confirm `auto_next` is enabled and `max_batch` is `1`. In batch mode it stays on the same set until the next execution.
+- **Images appear in strange order** – Disable `shuffle` and ensure `recursive` is set according to your folder structure.
+- **Mask output is empty** – The source file likely lacks an alpha channel; this is normal. Supply a separate mask if needed.
+
+---
+
+Screenshot: `docs/screenshots/load_image_combined.png`

@@ -1,42 +1,54 @@
 # Crop By Margins Suite
 
-## Overview
-`CropImageByMargins` and `CropMaskByMargins` apply identical margin logic to different tensor types. The image variant trims RGB tensors, while the mask variant normalises mask layouts before cropping. Use them together to keep images and masks aligned when removing edge padding or snapping to model-friendly dimensions.
+`CropImageByMargins` and `CropMaskByMargins` trim uniform margins from RGB images and their matching masks. Use them together to keep crops aligned across colour and alpha channels.
+
+---
 
 ## CropImageByMargins
 
 ### Inputs
-- `image` (`IMAGE`): Tensor `[B, H, W, C]`; converted to float32 and clamped to `[0, 1]`.
-- `left_px` (`INT`, default `0`): Pixels to remove from the left edge.
-- `top_px` (`INT`, default `0`): Pixels to remove from the top edge.
-- `right_px` (`INT`, default `0`): Pixels to remove from the right edge.
-- `bottom_px` (`INT`, default `0`): Pixels to remove from the bottom edge.
-- `snap_multiple` (`INT`, default `1`): Optional modulus applied after cropping. The box is shrunk (never expanded) so the width and height are multiples of this value; set to `1` to disable.
+- `image` – The RGB image to crop.
+- `left`, `right`, `top`, `bottom` – Margin sizes in pixels. Positive numbers trim inward; negative values add padding.
+- `enforce_even` – Force even output dimensions for latent-friendly pipelines.
+- `fill_color` – RGB colour used when padding outward (defaults to black).
 
-### Outputs
-- `IMAGE`: Cropped RGB tensor with the same batch size as the input.
+### Output
+- `image` – Cropped or padded image.
 
-### Processing Notes
-- Margins are clamped so the crop remains within bounds and preserves at least a 1×1 region.
-- Snapping runs after margins are applied and preserves the top-left anchor.
-- Alpha channels are dropped by the shared helpers, ensuring consistent RGB output.
+---
 
 ## CropMaskByMargins
 
 ### Inputs
-- `mask` (`MASK`): Accepts `[H, W]`, `[H, W, 1]`, `[1, H, W]`, or `[B, H, W, 1]`; normalised to `[B, H, W, 1]` float32 internally.
-- `left_px` (`INT`, default `0`), `top_px` (`INT`, default `0`), `right_px` (`INT`, default `0`), `bottom_px` (`INT`, default `0`): Identical semantics to the image variant.
-- `snap_multiple` (`INT`, default `1`): Applies the same post-crop snapping logic to keep masks aligned with images.
+- `mask` – The matching mask tensor.
+- `left`, `right`, `top`, `bottom` – Use the same values as the image node for perfect alignment.
+- `enforce_even` – Keep mask dimensions even to match the image branch.
 
-### Outputs
-- `MASK`: Cropped mask tensor with the same batch size as the normalised input.
+### Output
+- `mask` – Cropped or padded mask.
 
-### Processing Notes
-- Unsupported mask layouts raise descriptive `ValueError`s, prompting conversion before use.
-- Margin clamping mirrors the image node, keeping the crop in bounds and at least 1×1.
-- Snapping shares the same helper as the image variant, guaranteeing matched dimensions when both nodes receive identical parameters.
+---
 
-## Tips
-- Drive both nodes from a shared set of sliders/inputs to guarantee image/mask alignment.
-- Set `snap_multiple` to `8`, `16`, or `64` when preparing content for models that operate on fixed block sizes.
-- When chaining with other cropping utilities, apply `CropMaskByMargins` to masks first so subsequent mask-aware steps inherit the aligned dimensions.
+## Where It Fits
+
+Use the suite when you need consistent framing across multiple outputs—portrait plus silhouette, subject plus matte, etc. It also helps when you want to clear unwanted edges while keeping a predictable amount of breathing room on each side.
+
+---
+
+## Tuning Tips
+
+- Mirror the same margin values across both nodes so the subject stays aligned.
+- Set `enforce_even` to `True` when downstream models require even resolutions; leave it off for pixel-perfect edits.
+- Choose a neutral `fill_color` (e.g., mid-grey) when you plan to blend the padded area later.
+
+---
+
+## Troubleshooting
+
+- **Mask no longer lines up** – Double-check that both nodes share identical margin values and ordering.
+- **Unexpected border colour** – Adjust `fill_color` when padding outward; the default is pure black.
+- **Output still has odd dimensions** – Confirm `enforce_even` is enabled if your workflow expects even sizes.
+
+---
+
+Screenshot: `docs/screenshots/crop_image_by_margins.png`

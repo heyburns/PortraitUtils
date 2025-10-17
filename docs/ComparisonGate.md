@@ -1,27 +1,45 @@
 # ComparisonGate
 
-## Overview
-`ComparisonGate` keeps comparison viewers tidy by only emitting images when a complete pair is available. It listens to a designated `source_image` input together with up to three comparison sockets and mirrors ComfyUI's unplugged behaviour (`None`, `None`) until two populated tensors are ready to forward.
+`ComparisonGate` makes sure your comparison viewer only updates when two real images are ready. It prevents half-populated A/B viewers while batches spin up or when one branch lags behind the others.
+
+---
 
 ## Inputs
-- `source_image` (`IMAGE`, optional): Preferred reference image for the secondary output. Leave disconnected when you want the first populated comparison to feed both sockets.
-- `image_a` (`IMAGE`, optional): Primary comparison feed. Becomes the `final_image` output whenever populated.
-- `image_b` (`IMAGE`, optional): Secondary comparison feed used either as a fallback `final_image` or to backfill the `source_image` output when the dedicated source socket is empty.
-- `image_c` (`IMAGE`, optional): Tertiary comparison feed that participates in the fallback cascade.
+- `source_image` – Optional image you want to keep on the “reference” side. Leave it unplugged to let the node pick one of the comparisons instead.
+- `image_a`, `image_b`, `image_c` – Up to three comparison streams. They can arrive in any order and at any time; empty values are ignored.
 
-All inputs accept `None`; the node filters out empty lists/tuples as well as bare `None` values so placeholder widgets will not trigger accidental forwards.
+All sockets accept `None`, empty lists, or valid image tensors. The gate filters out anything that isn’t a real image.
+
+---
 
 ## Outputs
-- `final_image` (`IMAGE`): The first populated comparison input (`image_a` › `image_b` › `image_c`). Returns `None` until at least one comparison produces data.
-- `source_image` (`IMAGE`): Mirrors the dedicated `source_image` socket, or falls back to the next populated comparison input so the viewer always receives a pair. Returns `None` alongside `final_image` when fewer than two valid images are present.
+- `final_image` – The first populated comparison stream (`image_a` first, then `b`, then `c`).
+- `source_image` – The dedicated source input if it exists, otherwise the second non-empty comparison stream.
 
-## Forwarding Rules
-- The node inspects every input on each execution and counts how many look like real image tensors. If fewer than two are found it emits `(None, None)` to keep downstream nodes blank.
-- When only comparison sockets are populated, the first comparison feeds `final_image` and the second feeds `source_image`, ensuring A/B layouts remain synchronised.
-- When `source_image` is connected, it always feeds the `source_image` output unless it is empty—in that case the node automatically falls back to the second non-empty comparison input.
-- Containers such as one-item tuples or lists are unwrapped only when they contain real data; sequences of `None` values are ignored.
+Both outputs return `None` until at least two images are available.
 
-## Tips
-- Place the gate directly before two-input comparison viewers to prevent half-populated renders during workflow warm-up.
-- Combine with `PairedImageLoader` for workflow QA: let the loader drive comparisons and feed its outputs through the gate so the viewer only refreshes when both sockets advance.
-- Because the node simply relays its inputs, it adds no meaningful processing cost; you can safely sprinkle it anywhere you need to guarantee paired images.*** End Patch
+---
+
+## Where It Fits
+
+Drop ComparisonGate right before a two-input viewer or saver whenever you rely on asynchronous branches—classic example: A/B testing two upscalers or feeding matched before/after renders to a gallery.
+
+---
+
+## Tuning Tips
+
+- Use it together with `PairedImageLoader` when you want before/after stills to advance in lockstep.
+- If you only need a single “winner” image, you can connect just `image_a`; the gate will pass it through once it sees valid data.
+- Combine the debug output of upstream nodes with this gate to log why a branch is delayed.
+
+---
+
+## Troubleshooting
+
+- **Viewer still updates with one image** – Check that the viewer itself isn’t caching inputs; the gate always emits `(None, None)` until it sees two valid tensors.
+- **Wrong image shows up on the reference side** – Supply the dedicated `source_image`; otherwise the gate promotes the second populated comparison by design.
+- **Node never fires** – Make sure at least one branch produces an actual image tensor rather than an empty list or placeholder.
+
+---
+
+Screenshot: `docs/screenshots/comparison_gate.png`
