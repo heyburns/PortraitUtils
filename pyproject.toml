@@ -1,6 +1,6 @@
 [project]
 name = "portraitutils"
-description = ""
+description = "A focused node collection designed for pipelines using real photographic images where resolutions are not standardized like they are in text-to-image generation."
 version = "1.0.0"
 license = {file = "LICENSE"} 
 # classifiers = [
