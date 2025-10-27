@@ -1,0 +1,8 @@
+# Core tensor/math runtime for all nodes
+torch>=2.0
+
+# Array utilities used by cropping, loaders, and colour tools
+numpy>=1.24
+
+# Image encode/decode helpers (PIL)
+Pillow>=10.0

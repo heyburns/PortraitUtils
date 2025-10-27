@@ -416,7 +416,7 @@ class FitAspectHeadSafe:
         dbg = (
             f"match_to={match_to}, chosen={tag}({ratio:.4f}), "
             f"img={W}x{H}, mq=({x},{y},{w},{h}), "
-            f"margins(px): head={head_px:.1f}, foot={foot_px:.1f}, side≈{side_px:.1f}, "
+            f"margins(px): head={head_px:.1f}, foot={foot_px:.1f}, side={side_px:.1f}, "
             f"viol: top={lt:.1f}, bot={lb:.1f}; final=({X},{Y},{Wc},{Hc})"
         )
         return (Wc, Hc, X, Y, tag, dbg)
