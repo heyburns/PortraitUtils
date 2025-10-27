@@ -28,7 +28,7 @@ Documentation = "https://github.com/heyburns/PortraitUtils/wiki"
 "Bug Tracker" = "https://github.com/heyburns/PortraitUtils/issues"
 
 [tool.comfy]
-PublisherId = ""
+PublisherId = "heyburns"
 DisplayName = "PortraitUtils"
 Icon = ""
 includes = [] 
