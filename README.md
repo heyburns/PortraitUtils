@@ -81,7 +81,7 @@ Updating is as simple as replacing this folder and restarting.
   <div align="center"><img src="docs/screenshots/portraitutils_paired_image_loader.png" alt="PairedImageLoader screenshot" width="600" /></div>
 - **ComparisonGate**  
   Hold viewers until you have two images-no more half renders. [Guide](docs/ComparisonGate.md)  
-  <div align="center"><img src="docs/screenshots/comparison_gate.png" alt="ComparisonGate screenshot" width="300" /></div>
+  <div align="center"><img src="docs/screenshots/comparison_gate.png" alt="ComparisonGate screenshot" width="500" /></div>
 - **SimpleImageSaver**  
   Save PNG/JPG with metadata and suffix controls. [Guide](docs/SimpleImageSaver.md)  
   <div align="center"><img src="docs/screenshots/simple_image_saver.png" alt="SimpleImageSaver screenshot" width="300" /></div>
