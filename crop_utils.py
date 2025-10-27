@@ -146,6 +146,24 @@ class AutoCropBorders:
         thr_ch_4d = thr_ch.view(B, 1, 1, Cp)
 
         grown = _iutils_region_grow(work, seed, border_rgb, thr_ch_4d, int(max_growth_iter))
+
+        close_ksize = min(15, max(3, int(edge_margin_px) * 2 + 1))
+        if close_ksize > 1:
+            pad_c = close_ksize // 2
+            dilated = _iutils_F.max_pool2d(grown, close_ksize, stride=1, padding=pad_c)
+            closed = 1.0 - _iutils_F.max_pool2d(1.0 - dilated, close_ksize, stride=1, padding=pad_c)
+            diff = (closed - grown).clamp(0, 1)
+            if bool(diff.any()):
+                edge_mask = _iutils_torch.zeros_like(diff)
+                band_h = min(H, max(close_ksize, int(0.06 * H)))
+                band_w = min(W, max(close_ksize, int(0.06 * W)))
+                if band_h > 0:
+                    edge_mask[:, :, :band_h, :] = 1.0
+                    edge_mask[:, :, -band_h:, :] = 1.0
+                if band_w > 0:
+                    edge_mask[:, :, :, :band_w] = 1.0
+                    edge_mask[:, :, :, -band_w:] = 1.0
+                grown = (grown + diff * edge_mask).clamp(0, 1)
         nonborder = (1.0 - grown).clamp(0, 1)
         boxes = _iutils_bbox_from_mask(nonborder, int(pad_px))
 

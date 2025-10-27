@@ -220,7 +220,8 @@ class PairedImageLoader:
             f"{pair.display_name} ({next_index + 1}/{len(pairs)})"
         )
 
-        return output_tensor, source_tensor, pair.source.name
+        filename = os.path.splitext(pair.source.name)[0]
+        return output_tensor, source_tensor, filename
 
     @classmethod
     def _scan_directories(
@@ -360,7 +361,7 @@ class PairedImageLoader:
         for key, entries in mapping.items():
             if key in matched:
                 continue
-        leftovers.extend(entry.name for entry in entries)
+            leftovers.extend(entry.name for entry in entries)
         leftovers.sort(key=_natural_sort_key)
         return leftovers
 

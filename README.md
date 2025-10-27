@@ -1,6 +1,6 @@
 # PortraitUtils Node Suite
 
-PortraitUtils adds production-ready helper nodes for ComfyUI workflows that start with real photographs. The suite covers cropping, fit logic, megapixel targeting, colour matching, batch I/O, and comparison QA so you can spend less time wiring utilities and more time iterating.
+PortraitUtils is a suite of helper nodes for ComfyUI workflows that start with real photographs where resolutions are not standardized like they are in text-to-image generation. Nonstandard or odd resolutions may cause problems with inpainting or other workflow functions, and there may be borders or other dead space in photographs that needs to be trimmed. The suite covers cropping, fit logic, megapixel targeting, colour matching, batch I/O, and comparison QA so you can spend less time wiring utilities and more time iterating.
 
 ---
 
@@ -45,6 +45,12 @@ Updating is as simple as replacing this folder and restarting.
 - **AutoCropBorders**  
   Remove letterbox or scanner borders with CPU/GPU options. [Guide](docs/AutoCropBorders.md)  
   <div align="center"><img src="docs/screenshots/auto_crop_borders.png" alt="AutoCropBorders screenshot" width="300" /></div>
+- **StripBottomBanner**  
+  Detect and trim dark metadata banners that sit against the bottom frame so your downstream crops only see the photo content. [Guide](docs/StripBottomBanner.md)  
+  <div align="center"><img src="docs/screenshots/strip_bottom_banner.png" alt="StripBottomBanner screenshot" width="500" /></div>
+- **StripSolidBorders**  
+  Peel away large flat-colour frames common in legacy scan/BBS collections, with iterative passes and logo-aware thresholds for multi-step borders. [Guide](docs/StripSolidBorders.md)  
+  <div align="center"><img src="docs/screenshots/strip_solid_borders.png" alt="StripSolidBorders screenshot" width="500" /></div>
 - **CropImageByMargins / CropMaskByMargins**  
   Apply matching padding to RGB images and masks. [Guide](docs/CropByMarginsSuite.md)  
   <div align="center"><img src="docs/screenshots/crop_image_by_margins.png" alt="Crop by margins suite screenshot" width="500" /></div>
@@ -74,7 +80,8 @@ Updating is as simple as replacing this folder and restarting.
   Pull matched before/after pairs for QA passes. [Guide](docs/PairedImageLoader.md)  
   <div align="center"><img src="docs/screenshots/portraitutils_paired_image_loader.png" alt="PairedImageLoader screenshot" width="600" /></div>
 - **ComparisonGate**  
-  Hold viewers until you have two images—no more half renders. [Guide](docs/ComparisonGate.md)
+  Hold viewers until you have two images-no more half renders. [Guide](docs/ComparisonGate.md)  
+  <div align="center"><img src="docs/screenshots/comparison_gate.png" alt="ComparisonGate screenshot" width="300" /></div>
 - **SimpleImageSaver**  
   Save PNG/JPG with metadata and suffix controls. [Guide](docs/SimpleImageSaver.md)  
   <div align="center"><img src="docs/screenshots/simple_image_saver.png" alt="SimpleImageSaver screenshot" width="300" /></div>

@@ -1,9 +1,6 @@
 import torch
 import torch.nn.functional as F
 
-print("[StitchByMask] loaded")
-
-
 def _to_bhwc(img: torch.Tensor) -> torch.Tensor:
     # Accept [H,W,C] or [B,H,W,C]; ensure float32 0..1
     if img.dim() == 3:
