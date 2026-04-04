@@ -207,18 +207,42 @@ class SimpleImageSaver:
                 image.save(file_path, pnginfo=metadata, compress_level=4)
             else:
                 comment = _encode_jpeg_comment(prompt if should_embed_metadata else None, extra_pnginfo if should_embed_metadata else None)
-                save_kwargs = {"quality": jpeg_quality, "subsampling": 0 if jpeg_quality >= 95 else "keep"}
+                save_kwargs = {"quality": jpeg_quality}
+                if jpeg_quality >= 90:
+                    save_kwargs["subsampling"] = 0
                 if comment:
                     save_kwargs["comment"] = comment
                 image.save(file_path, format="JPEG", **save_kwargs)
 
-            results.append(
-                {
-                    "filename": final_filename,
-                    "subfolder": self._relative_subfolder(resolved_dir, base_output_abs),
-                    "type": "output",
-                }
-            )
+            rel_sub = self._relative_subfolder(resolved_dir, base_output_abs)
+
+            # If the user saved to a bespoke absolute path (outside the normal output folder bounds),
+            # ComfyUI's backend will refuse to serve the image to the frontend node for security reasons.
+            # We catch that here and write a temporary proxy to the temp folder so the visual preview continues to work.
+            if rel_sub == "" and resolved_dir != base_output_abs:
+                import random, string
+                temp_dir = folder_paths.get_temp_directory()
+                temp_name = f"proxy_{''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(8))}{extension}"
+                temp_path = os.path.join(temp_dir, temp_name)
+                
+                if fmt == "PNG":
+                    image.save(temp_path, compress_level=1)
+                else:
+                    image.save(temp_path, format="JPEG", quality=75)
+                
+                results.append({
+                    "filename": temp_name,
+                    "subfolder": "",
+                    "type": "temp"
+                })
+            else:
+                results.append(
+                    {
+                        "filename": final_filename,
+                        "subfolder": rel_sub,
+                        "type": "output",
+                    }
+                )
 
         return {"ui": {"images": results}}
 

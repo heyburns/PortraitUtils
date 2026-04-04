@@ -83,7 +83,6 @@ class StitchByMask:
             "required": {
                 "image_a": ("IMAGE",),
                 "image_b": ("IMAGE",),
-                "mask": ("MASK", {"default": None}),  # optional when bypassing
                 "invert_mask": ("BOOLEAN", {"default": False}),
                 "bypass_mask": ("BOOLEAN", {"default": False}),
                 "opacity": (
@@ -103,6 +102,9 @@ class StitchByMask:
                     "INT",
                     {"default": 768, "min": 16, "max": 8192, "step": 1},
                 ),
+            },
+            "optional": {
+                "mask": ("MASK", {"default": None}),
             }
         }
 
