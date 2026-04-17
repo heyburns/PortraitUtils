@@ -99,6 +99,10 @@ class IntelligentAutoCrop:
     CATEGORY = "Image/Transform"
 
     def run(self, image, strip_bottom_banner=True, detect_borders=True, fuzz_tolerance=0.04, edge_uniformity=0.75, pad_px=0):
+        with torch.no_grad():
+            return self._run_inner(image, strip_bottom_banner, detect_borders, fuzz_tolerance, edge_uniformity, pad_px)
+
+    def _run_inner(self, image, strip_bottom_banner=True, detect_borders=True, fuzz_tolerance=0.04, edge_uniformity=0.75, pad_px=0):
         img = _ensure_bhwc_rgb(image)
         B, H, W, C = img.shape
         
@@ -144,12 +148,17 @@ class IntelligentAutoCrop:
             # 2. Adaptive Rolling Scan
             if detect_borders and (w_end - w_start) > 16 and (h_end - h_start) > 16:
                 roi = work[w_start:w_end, h_start:h_end, :]
+                roi_c = roi.contiguous()
+                roi_t = roi_c.permute(1, 0, 2).contiguous()
                 
                 # Scan all four borders iteratively and independently
-                r_top = _scan_edge(roi, fuzz_tolerance, edge_uniformity)
-                r_bot = _scan_edge(roi.flip(0), fuzz_tolerance, edge_uniformity)
-                c_lef = _scan_edge(roi.permute(1, 0, 2), fuzz_tolerance, edge_uniformity)
-                c_rig = _scan_edge(roi.permute(1, 0, 2).flip(0), fuzz_tolerance, edge_uniformity)
+                r_top = _scan_edge(roi_c, fuzz_tolerance, edge_uniformity)
+                r_bot = _scan_edge(roi_c.flip(0), fuzz_tolerance, edge_uniformity)
+                c_lef = _scan_edge(roi_t, fuzz_tolerance, edge_uniformity)
+                c_rig = _scan_edge(roi_t.flip(0), fuzz_tolerance, edge_uniformity)
+
+                # Free staging tensors immediately
+                del roi_c, roi_t
                 
                 if r_top > 0 or r_bot > 0 or c_lef > 0 or c_rig > 0:
                     r_top = max(0, r_top - pad_px)
