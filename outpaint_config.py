@@ -194,9 +194,9 @@ class OutpaintPaddingComputeNode:
         else:
             horz_total = int(round(W * hp / 100.0))
             if g in ("left", "top left", "bottom left"):
-                left, right = horz_total, 0
-            elif g in ("right", "top right", "bottom right"):
                 right, left = horz_total, 0
+            elif g in ("right", "top right", "bottom right"):
+                left, right = horz_total, 0
             else:
                 left = horz_total // 2
                 right = horz_total - left
@@ -207,9 +207,9 @@ class OutpaintPaddingComputeNode:
         else:
             vert_total = int(round(H * vp / 100.0))
             if g in ("top", "top left", "top right"):
-                top, bottom = vert_total, 0
-            elif g in ("bottom", "bottom left", "bottom right"):
                 bottom, top = vert_total, 0
+            elif g in ("bottom", "bottom left", "bottom right"):
+                top, bottom = vert_total, 0
             else:
                 top = vert_total // 2
                 bottom = vert_total - top
