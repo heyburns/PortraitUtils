@@ -1,5 +1,22 @@
+"""
+DEPRECATED: MultiPromptNode is superseded by UniversalProjectConfig.
+
+All four prompt fields (subject_mask, inpaint_prompt, outpaint_prompt, stitch_mask)
+are now declared in config_schema.json and output directly from UniversalProjectConfig.
+
+This module is kept in place so that existing saved workflows that reference
+"MultiPromptNode" continue to load without hard errors. Migrate your workflows
+to UniversalProjectConfig and this node can be removed in a future cleanup.
+"""
+
+import logging
+
+_log = logging.getLogger(__name__)
+_warned = False  # emit the deprecation notice at most once per session
+
+
 class MultiPromptNode:
-    """Simple shim that exposes four multiline prompt sockets."""
+    """[DEPRECATED] Use UniversalProjectConfig instead."""
 
     @classmethod
     def INPUT_TYPES(cls):
@@ -30,6 +47,13 @@ class MultiPromptNode:
     CATEGORY = "config"
 
     def apply(self, subject_mask, inpaint_prompt, outpaint_prompt, stitch_mask):
+        global _warned
+        if not _warned:
+            _log.warning(
+                "[PortraitUtils] MultiPromptNode is DEPRECATED. "
+                "Migrate to UniversalProjectConfig — all prompt fields are now in config_schema.json."
+            )
+            _warned = True
         return (
             str(subject_mask),
             str(inpaint_prompt),
@@ -43,5 +67,5 @@ NODE_CLASS_MAPPINGS = {
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
-    "MultiPromptNode": "Multi-Prompt",
+    "MultiPromptNode": "Multi-Prompt [DEPRECATED]",
 }
