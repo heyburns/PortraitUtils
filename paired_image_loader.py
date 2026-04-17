@@ -82,6 +82,17 @@ class _NodeState:
 _STATE: Dict[str, _NodeState] = {}
 _SIGNATURE_INDEX: Dict[Tuple, int] = {}
 
+# Maximum number of entries retained in each module-level cache dict.
+# Old entries are evicted FIFO once the cap is reached.
+_MAX_CACHE_ENTRIES = 64
+
+
+def _evict_oldest(d: dict, max_entries: int) -> None:
+    """Remove oldest keys from a plain dict when it exceeds max_entries."""
+    while len(d) >= max_entries:
+        oldest_key = next(iter(d))
+        del d[oldest_key]
+
 
 def _coerce_str(value) -> str:
     if value is None:
@@ -177,6 +188,7 @@ class PairedImageLoader:
                 f"PairedImageLoader: output_dir not found: {out_path}"
             )
 
+        _evict_oldest(_STATE, _MAX_CACHE_ENTRIES)
         state = _STATE.setdefault(state_key, migrated_state or _NodeState())
 
         pairs, signature, warnings = self._scan_directories(
@@ -213,6 +225,7 @@ class PairedImageLoader:
         source_tensor = self._load_image(pair.source.path)
         output_tensor = self._load_image(pair.output.path)
 
+        _evict_oldest(_SIGNATURE_INDEX, _MAX_CACHE_ENTRIES)
         _SIGNATURE_INDEX[signature] = state.index
 
         print(
@@ -308,7 +321,11 @@ class PairedImageLoader:
                 ext = Path(name).suffix.lower()
                 if ext not in _IMAGE_EXTENSIONS:
                     continue
-                stat = item.stat()
+                try:
+                    stat = item.stat()
+                except OSError:
+                    # Broken symlink or race-condition deletion — skip gracefully.
+                    continue
                 stem = Path(name).stem
                 normalized_key = _normalize_base(stem, strip_trailing_numbers)
                 entry = _FileEntry(
@@ -406,21 +423,30 @@ class PairedImageLoader:
 
     @staticmethod
     def _load_image(path: Path) -> torch.Tensor:
-        img = node_helpers.pillow(Image.open, path)
+        """Load an image file as a [1, H, W, 3] float32 tensor in [0, 1].
+
+        All intermediate PIL Image objects are explicitly closed to prevent
+        file-handle and memory leaks.  Alpha channels are discarded directly
+        via a single convert("RGB") call — no intermediate RGBA copy.
+        """
+        raw = node_helpers.pillow(Image.open, path)
+        transposed = None
         try:
-            img = ImageOps.exif_transpose(img)
-            if img.mode != "RGB":
-                if "A" in img.getbands():
-                    img = img.convert("RGBA")
-                else:
-                    img = img.convert("RGB")
-            if img.mode == "RGBA":
-                img = img.convert("RGB")
-            array = np.array(img).astype(np.float32) / 255.0
-            tensor = torch.from_numpy(array)[None, ...]
-            return tensor
+            transposed = ImageOps.exif_transpose(raw)
+            if transposed.mode != "RGB":
+                rgb = transposed.convert("RGB")
+            else:
+                rgb = transposed
+            try:
+                array = np.array(rgb).astype(np.float32) / 255.0
+                return torch.from_numpy(array)[None, ...]
+            finally:
+                if rgb is not transposed:
+                    rgb.close()
         finally:
-            img.close()
+            raw.close()
+            if transposed is not None and transposed is not raw:
+                transposed.close()
 
     @classmethod
     def IS_CHANGED(

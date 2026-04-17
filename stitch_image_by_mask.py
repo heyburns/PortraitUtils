@@ -126,6 +126,25 @@ class StitchByMask:
         target_width: int = 1440,
         target_height: int = 1080,
     ):
+        with torch.no_grad():
+            return self._blend_inner(
+                image_a, image_b, mask, invert_mask, bypass_mask,
+                opacity, feather_radius, force_size, target_width, target_height
+            )
+
+    def _blend_inner(
+        self,
+        image_a: torch.Tensor,
+        image_b: torch.Tensor,
+        mask: torch.Tensor = None,
+        invert_mask: bool = False,
+        bypass_mask: bool = False,
+        opacity: float = 1.0,
+        feather_radius: int = 5,
+        force_size: bool = True,
+        target_width: int = 1440,
+        target_height: int = 1080,
+    ):
 
         a = _to_bhwc(image_a)
         b = _to_bhwc(image_b)
@@ -183,24 +202,34 @@ class StitchByMask:
         if feather_radius > 0:
             k = _make_disk_kernel(feather_radius, device=m.device)  # [1,1,d,d]
             core_chw = core.permute(0, 3, 1, 2)  # [B,1,H,W]
+            del core  # core_chw holds the data now; free the BHWC copy
             # convolution-based dilation approx: if any pixel inside disk -> >0 after conv
             dil = F.conv2d(core_chw, k, padding=feather_radius)  # normalized sum
+            del core_chw, k  # free immediately
             expanded = (dil > 0).float()  # binary expanded
+            del dil
             # Feather by Gaussian blur with sigma ~ radius/2
             sigma = max(0.5, feather_radius / 2.0)
             feathered = _gaussian_blur_chw(expanded, sigma=sigma).clamp(0.0, 1.0)
+            del expanded
             m_feather = feathered.permute(0, 2, 3, 1)
+            del feathered
             # Guarantee we never unmask what was masked: take max with original soft mask
             m_safe = torch.maximum(m_feather, m)
+            del m_feather
         else:
             m_safe = m
 
-        # Broadcast mask to match image channels
-        if a.size(-1) != 1 and m_safe.size(-1) == 1:
-            m_safe = m_safe.expand(-1, -1, -1, a.size(-1))
+        # Broadcast mask to match image channels and materialize once
+        n_ch = a.size(-1)
+        if n_ch != 1 and m_safe.size(-1) == 1:
+            m_safe = m_safe.expand(-1, -1, -1, n_ch).contiguous()
 
         out = m_safe * b + (1.0 - m_safe) * a
-        return (out.clamp(0.0, 1.0), m_safe.clamp(0.0, 1.0))
+        # Return a single-channel mask for downstream use (don't retain the expanded copy)
+        mask_out = m_safe[..., :1].clamp(0.0, 1.0)
+        del m_safe
+        return (out.clamp(0.0, 1.0), mask_out)
 
 
 NODE_CLASS_MAPPINGS = {

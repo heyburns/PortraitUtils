@@ -65,6 +65,13 @@ def _basename_no_ext(filename: str, strip_numbers=False) -> str:
 # repeat_last=True; not persisted to disk.
 # ----------------------------------------------------------------
 _INDEX_STATE = {}  # { base_dir: { listing_key: last_used_index } }
+_MAX_INDEX_DIRS = 128  # cap to prevent unbounded growth in long-running sessions
+
+
+def _evict_index_state() -> None:
+    """FIFO-evict oldest directories from _INDEX_STATE when the cap is reached."""
+    while len(_INDEX_STATE) >= _MAX_INDEX_DIRS:
+        _INDEX_STATE.pop(next(iter(_INDEX_STATE)))
 
 def _listing_key(files_sorted, strip_numbers, pattern):
     """
@@ -87,6 +94,7 @@ def _choose_index_and_update(base_dir, key, n, repeat_last):
         next_idx = 0
     else:
         next_idx = min(last, n - 1) if repeat_last else ((last + 1) % n)
+    _evict_index_state()
     d = _INDEX_STATE.get(base_dir)
     if d is None:
         d = {}
@@ -141,13 +149,23 @@ class LoadImageCombined:
     FUNCTION = "load_image"
 
     def _load_pil(self, path):
-        im = Image.open(path)
-        im = ImageOps.exif_transpose(im)
-        # Always discard alpha (convert to RGB) to avoid downstream errors
-        if "A" in im.getbands():
-            arr = np.array(im.convert("RGB")).astype(np.float32) / 255.0
-        else:
-            arr = np.array(im.convert("RGB")).astype(np.float32) / 255.0
+        """Open, EXIF-transpose, and convert to float32 RGB numpy array.
+
+        Both the original Image.open handle and any separate EXIF-transposed
+        copy are explicitly closed to avoid file-handle and memory leaks.
+        """
+        raw = Image.open(path)
+        transposed = None
+        try:
+            transposed = ImageOps.exif_transpose(raw)
+            # Both branches of the original if/else were identical — just convert.
+            arr = np.array(transposed.convert("RGB")).astype(np.float32) / 255.0
+        finally:
+            # Always close the raw handle.
+            raw.close()
+            # exif_transpose may return a NEW Image; close it too if so.
+            if transposed is not None and transposed is not raw:
+                transposed.close()
         return arr
 
     def _single_mode(self, image_choice, strip_numbers):

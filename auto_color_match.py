@@ -11,7 +11,9 @@ def srgb_to_linear(x):
 
 def linear_to_srgb(x):
     a = 0.055
-    return torch.where(x <= 0.0031308, x * 12.92, (1 + a) * x.pow(1/2.4) - a)
+    # Clamp to 0 before pow: torch.where evaluates both branches eagerly, so
+    # negative values would produce NaN even in the branch that is not selected.
+    return torch.where(x <= 0.0031308, x * 12.92, (1 + a) * x.clamp_min(0.0).pow(1 / 2.4) - a)
 
 # ---------------------------
 # RGB <-> XYZ <-> Lab (D65)
@@ -26,9 +28,18 @@ _M_XYZ2RGB = torch.tensor([[ 3.2404542, -1.5371385, -0.4985314],
 # D65 white point
 _Xn, _Yn, _Zn = 0.95047, 1.00000, 1.08883
 
+# Per-device matrix cache so we never reallocate on repeated calls
+_MATRIX_CACHE: dict = {}
+
+def _get_matrix(name: str, src: torch.Tensor, device, dtype) -> torch.Tensor:
+    key = (name, device, dtype)
+    if key not in _MATRIX_CACHE:
+        _MATRIX_CACHE[key] = src.to(device=device, dtype=dtype)
+    return _MATRIX_CACHE[key]
+
 def rgb_to_lab(rgb):  # [B,H,W,3] in 0..1 sRGB
     B,H,W,C = rgb.shape
-    M = _M_RGB2XYZ.to(rgb.device, rgb.dtype)
+    M = _get_matrix("rgb2xyz", _M_RGB2XYZ, rgb.device, rgb.dtype)
     # sRGB -> linear -> XYZ
     lin = srgb_to_linear(rgb)
     xyz = torch.einsum('bhwc,cd->bhwd', lin, M)
@@ -66,7 +77,7 @@ def lab_to_rgb(lab):  # [B,H,W,3]
     Y = yr * _Yn
     Z = zr * _Zn
     xyz = torch.stack([X,Y,Z], dim=-1)
-    M = _M_XYZ2RGB.to(lab.device, lab.dtype)
+    M = _get_matrix("xyz2rgb", _M_XYZ2RGB, lab.device, lab.dtype)
     lin = torch.einsum('bhwc,cd->bhwd', xyz, M)
     srgb = linear_to_srgb(lin).clamp(0,1)
     return srgb
@@ -99,13 +110,14 @@ def per_image_mean_std(x):
 # Methods
 # ---------------------------
 def wb_grayworld(img):
-    # scale channels so mean becomes gray
+    # Scale channels so mean becomes gray.
+    # Clamp the per-channel mean away from zero to prevent inf gains when a
+    # channel is pure black, then cap gains to a reasonable range.
     B = img.shape[0]
-    mean = img.view(B,-1,3).mean(dim=1)  # [B,3]
-    gray = mean.mean(dim=1, keepdim=True) # [B,1]
-    gains = (gray / mean).view(B,1,1,3)
-    out = (img * gains).clamp(0,1)
-    return out
+    mean = img.view(B, -1, 3).mean(dim=1)          # [B, 3]
+    gray = mean.mean(dim=1, keepdim=True)           # [B, 1]
+    gains = (gray / mean.clamp_min(1e-6)).clamp(0.5, 2.0).view(B, 1, 1, 3)
+    return (img * gains).clamp(0, 1)
 
 def wb_highlight(img, percentile=95.0):
     # use brightest-percent luminance pixels as "white patch"
@@ -172,47 +184,47 @@ class AutoWBColorMatch:
     def run(self, image, reference, method="wb_highlight+reinhard",
             percentile=95.0, strength=1.0, clip_gamut=True,
             force_size=False, target_width=1440, target_height=1080):
+        with torch.no_grad():
+            src = to_bhwc(image)
+            ref = to_bhwc(reference)
 
-        src = to_bhwc(image)
-        ref = to_bhwc(reference)
+            if force_size:
+                th, tw = target_height, target_width
+                src_small = resize_bhwc(src, th, tw)
+                ref_small = resize_bhwc(ref, th, tw)
+            else:
+                src_small, ref_small = src, ref
 
-        if force_size:
-            th, tw = target_height, target_width
-            src_small = resize_bhwc(src, th, tw)
-            ref_small = resize_bhwc(ref, th, tw)
-        else:
-            src_small, ref_small = src, ref
+            # 1) white balance / base correction
+            if method in ("wb_grayworld",):
+                base = wb_grayworld(src_small)
+            elif method in ("wb_highlight", "wb_highlight+reinhard"):
+                base = wb_highlight(src_small, percentile=float(percentile))
+            elif method in ("reinhard_lab","lab_l_only"):
+                base = src_small
+            else:
+                base = src_small
 
-        # 1) white balance / base correction
-        if method in ("wb_grayworld",):
-            base = wb_grayworld(src_small)
-        elif method in ("wb_highlight", "wb_highlight+reinhard"):
-            base = wb_highlight(src_small, percentile=float(percentile))
-        elif method in ("reinhard_lab","lab_l_only"):
-            base = src_small
-        else:
-            base = src_small
+            # 2) color match
+            if method == "reinhard_lab":
+                matched = reinhard_match(base, ref_small, l_only=False)
+            elif method == "lab_l_only":
+                matched = reinhard_match(base, ref_small, l_only=True)
+            elif method == "wb_highlight+reinhard":
+                matched = reinhard_match(base, ref_small, l_only=False)
+            else:
+                matched = base
 
-        # 2) color match
-        if method == "reinhard_lab":
-            matched = reinhard_match(base, ref_small, l_only=False)
-        elif method == "lab_l_only":
-            matched = reinhard_match(base, ref_small, l_only=True)
-        elif method == "wb_highlight+reinhard":
-            matched = reinhard_match(base, ref_small, l_only=False)
-        else:
-            matched = base
+            # If we resized for stats, reapply the transform back to original resolution
+            if force_size and (src.shape[1]!=matched.shape[1] or src.shape[2]!=matched.shape[2]):
+                matched = resize_bhwc(matched, src.shape[1], src.shape[2])
 
-        # If we resized for stats, reapply the transform back to original resolution
-        if force_size and (src.shape[1]!=matched.shape[1] or src.shape[2]!=matched.shape[2]):
-            matched = resize_bhwc(matched, src.shape[1], src.shape[2])
+            # 3) blend strength
+            out = (1 - strength) * src + strength * matched
+            if clip_gamut:
+                out = out.clamp(0,1)
 
-        # 3) blend strength
-        out = (1 - strength) * src + strength * matched
-        if clip_gamut:
-            out = out.clamp(0,1)
-
-        return (out,)
+            return (out,)
 
 NODE_CLASS_MAPPINGS = {
     "AutoWBColorMatch": AutoWBColorMatch,

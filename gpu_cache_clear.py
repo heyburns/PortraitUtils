@@ -81,10 +81,12 @@ class SeedVR2Prep:
                     # pad a row by repeating last row
                     x = _iutils_torch.cat([x, x[:, -1:, :, :]], dim=1)
 
-            if to_fp16_on_gpu and _iutils_torch.cuda.is_available():
-                if x.device.type != "cuda":
-                    x = x.to("cuda", non_blocking=True)
-                x = x.to(dtype=_iutils_torch.float16)
+        # fp16 conversion is independent of even-dim trimming — must live outside
+        # the ensure_even_dims block so that it executes when that toggle is off.
+        if to_fp16_on_gpu and _iutils_torch.cuda.is_available():
+            if x.device.type != "cuda":
+                x = x.to("cuda", non_blocking=True)
+            x = x.to(dtype=_iutils_torch.float16)
         return (x,)
 
 

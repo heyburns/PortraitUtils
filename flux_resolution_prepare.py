@@ -226,54 +226,57 @@ class FluxResolutionPrepare:
         crop_x=0,
         crop_y=0,
     ):
-        tensor = _ensure_bhwc(image)
-        if tensor.shape[0] != 1:
-            raise ValueError("FluxResolutionPrepare expects an unbatched IMAGE tensor (B=1)")
+        with torch.no_grad():
+            tensor = _ensure_bhwc(image)
+            if tensor.shape[0] != 1:
+                raise ValueError("FluxResolutionPrepare expects an unbatched IMAGE tensor (B=1)")
 
-        sample = tensor[0]
-        orig_height, orig_width = sample.shape[:2]
-        pre_scale = 1.0
-        if enable_pre_upscale:
-            sample, pre_scale = _maybe_pre_upscale(sample, min_megapixels)
+            sample = tensor[0]
+            orig_height, orig_width = sample.shape[:2]
+            pre_scale = 1.0
+            if enable_pre_upscale:
+                sample, pre_scale = _maybe_pre_upscale(sample, min_megapixels)
 
-        sample_height, sample_width = sample.shape[:2]
-        scale_x = sample_width / max(1, orig_width)
-        scale_y = sample_height / max(1, orig_height)
+            sample_height, sample_width = sample.shape[:2]
+            scale_x = sample_width / max(1, orig_width)
+            scale_y = sample_height / max(1, orig_height)
 
-        orig_area = float(sample_height * sample_width)
+            orig_area = float(sample_height * sample_width)
 
-        work = sample
-        if isinstance(crop_width, (int, float)) and isinstance(crop_height, (int, float)):
-            if crop_width > 0 and crop_height > 0:
-                sx = int(round(max(0.0, crop_x) * scale_x))
-                sy = int(round(max(0.0, crop_y) * scale_y))
-                sw = int(round(crop_width * scale_x))
-                sh = int(round(crop_height * scale_y))
-                if sw > 0 and sh > 0:
-                    sx = max(0, min(sx, sample_width - 1))
-                    sy = max(0, min(sy, sample_height - 1))
-                    sw = max(1, min(sw, sample_width - sx))
-                    sh = max(1, min(sh, sample_height - sy))
-                    work = sample[sy : sy + sh, sx : sx + sw, :]
+            work = sample
+            if isinstance(crop_width, (int, float)) and isinstance(crop_height, (int, float)):
+                if crop_width > 0 and crop_height > 0:
+                    sx = int(round(max(0.0, crop_x) * scale_x))
+                    sy = int(round(max(0.0, crop_y) * scale_y))
+                    sw = int(round(crop_width * scale_x))
+                    sh = int(round(crop_height * scale_y))
+                    if sw > 0 and sh > 0:
+                        sx = max(0, min(sx, sample_width - 1))
+                        sy = max(0, min(sy, sample_height - 1))
+                        sw = max(1, min(sw, sample_width - sx))
+                        sh = max(1, min(sh, sample_height - sy))
+                        work = sample[sy : sy + sh, sx : sx + sw, :]
 
-        work_height, work_width = work.shape[:2]
-        target, crop_w, crop_h, _ = _select_target_combo(work_width, work_height)
-        cropped, _, _ = _center_crop(work, crop_w, crop_h)
+            work_height, work_width = work.shape[:2]
+            target, crop_w, crop_h, _ = _select_target_combo(work_width, work_height)
+            cropped, _, _ = _center_crop(work, crop_w, crop_h)
+            del work
 
-        resized = _resize_sample(cropped, target.height, target.width).clamp(0.0, 1.0)
-        output = resized.unsqueeze(0)
+            resized = _resize_sample(cropped, target.height, target.width).clamp(0.0, 1.0)
+            del cropped
+            output = resized.unsqueeze(0)
 
-        final_area = float(crop_w * crop_h)
-        total_area_loss = max(0.0, 1.0 - (final_area / max(orig_area, 1.0)))
-        area_loss_percent = float(total_area_loss * 100.0)
-        return (
-            output,
-            target.ratio_label,
-            int(target.width),
-            int(target.height),
-            area_loss_percent,
-            float(pre_scale),
-        )
+            final_area = float(crop_w * crop_h)
+            total_area_loss = max(0.0, 1.0 - (final_area / max(orig_area, 1.0)))
+            area_loss_percent = float(total_area_loss * 100.0)
+            return (
+                output,
+                target.ratio_label,
+                int(target.width),
+                int(target.height),
+                area_loss_percent,
+                float(pre_scale),
+            )
 
 
 NODE_CLASS_MAPPINGS = {

@@ -39,7 +39,7 @@ class FilenameAppendSuffix:
     def build(
         self,
         filename: str,
-        suffix: str = "supir",
+        suffix: str = "",
         separator: str = "-",
         strip_all_extensions: bool = True,
         preserve_directory: bool = True,

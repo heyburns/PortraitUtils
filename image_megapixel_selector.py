@@ -128,15 +128,22 @@ class ImageMegapixelSelector:
     def _resize_lanczos(sample: torch.Tensor, width: int, height: int) -> torch.Tensor:
         device = sample.device
         dtype = sample.dtype
-        mode = "RGB"
 
         np_img = sample.detach().cpu().numpy()
         np_img = np.clip(np_img, 0.0, 1.0)
         np_img = (np_img * 255.0).round().astype(np.uint8)
 
-        pil_image = Image.fromarray(np_img, mode=mode)
-        resized = pil_image.resize((int(width), int(height)), Image.LANCZOS)
-        arr = np.asarray(resized).astype(np.float32) / 255.0
+        pil_image = Image.fromarray(np_img, mode="RGB")
+        try:
+            resized = pil_image.resize((int(width), int(height)), Image.LANCZOS)
+            try:
+                # Use np.array (always copies) rather than np.asarray (may be a view)
+                # so the PIL buffer is safe to close before the array is consumed.
+                arr = np.array(resized).astype(np.float32) / 255.0
+            finally:
+                resized.close()
+        finally:
+            pil_image.close()
 
         if arr.ndim == 2:
             arr = np.repeat(arr[..., None], 3, axis=-1)
