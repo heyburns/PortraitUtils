@@ -85,12 +85,7 @@ Updating is as simple as replacing this folder and restarting.
 - **FilenameAppendSuffix**  
   Append suffixes without breaking multi-part extensions. [Guide](docs/FilenameAppendSuffix.md)  
   <div align="center"><img src="docs/screenshots/filename_append_suffix.png" alt="FilenameAppendSuffix screenshot" width="300" /></div>
-- **GpuSyncCacheClear**  
-  Flush CUDA caches mid-run to avoid VRAM creep. [Guide](docs/GpuSyncCacheClear.md)  
-  <div align="center"><img src="docs/screenshots/gpu_sync_cache_clear.png" alt="GpuSyncCacheClear screenshot" width="300" /></div>
-- **SeedVR2Prep**  
-  Prep heavy SeedVR2 pipelines with cache priming and cleanup. [Guide](docs/SeedVR2Prep.md)  
-  <div align="center"><img src="docs/screenshots/seedvr2_prep.png" alt="SeedVR2Prep screenshot" width="300" /></div>
+
 
 Screenshots under `docs/screenshots/` match the ComfyUI widgets so you can confirm you grabbed the right node.
 
@@ -101,7 +96,7 @@ Screenshots under `docs/screenshots/` match the ComfyUI widgets so you can confi
 - **Shared toggles** – drive multiple `AutoAdjustNode` blocks with one `AutoColorConfigNode` when branches need the same look.
 - **Debug strings** – cropping utilities (`MQBBoxMin`, `FitAspectHeadSafe`, `FluxResolutionPrepare`) emit detailed notes; pipe them into log widgets while tuning.
 - **JSON bundles** – `WorkflowConfig` emits a single string you can unpack in custom scripts to sync settings everywhere.
-- **GPU switches** – nodes like `AutoCropBorders` and `GpuSyncCacheClear` expose `use_gpu`; flip them based on the machine you run on.
+- **GPU switches** – nodes like `AutoCropBorders` expose `use_gpu`; flip them based on the machine you run on.
 
 ---
 
