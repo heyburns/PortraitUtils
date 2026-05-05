@@ -42,11 +42,18 @@ def _mask_to_bhw1(m: torch.Tensor) -> torch.Tensor:
     return m.to(torch.float32).clamp(0.0, 1.0)
 
 
-def _make_disk_kernel(radius: int, device) -> torch.Tensor:
+_DISK_KERNEL_CACHE = {}
+
+def _make_disk_kernel(radius: float, device: torch.device) -> torch.Tensor:
     if radius <= 0:
-        k = torch.ones((1, 1, 1, 1), device=device)
-        return k
-    d = 2 * radius + 1
+        return torch.ones(1, 1, 1, 1, device=device)
+    radius = max(1, int(round(radius)))
+    
+    key = (radius, str(device))
+    if key in _DISK_KERNEL_CACHE:
+        return _DISK_KERNEL_CACHE[key]
+
+    d = radius * 2 + 1
     yy, xx = torch.meshgrid(
         torch.arange(d, device=device),
         torch.arange(d, device=device),
@@ -57,7 +64,14 @@ def _make_disk_kernel(radius: int, device) -> torch.Tensor:
     if disk.sum() <= 0:
         disk = torch.ones_like(disk)
     disk = disk / disk.sum()
-    return disk.view(1, 1, d, d)
+    
+    kernel = disk.view(1, 1, d, d)
+    
+    if len(_DISK_KERNEL_CACHE) > 32:
+        _DISK_KERNEL_CACHE.clear()
+        
+    _DISK_KERNEL_CACHE[key] = kernel
+    return kernel
 
 
 def _gaussian_blur_chw(x: torch.Tensor, sigma: float) -> torch.Tensor:
