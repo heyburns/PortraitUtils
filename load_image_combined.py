@@ -236,14 +236,12 @@ class LoadImageCombined:
             m = hashlib.sha256()
             # Hash file bytes to detect actual content changes; also include strip flag
             try:
-                with open(image_path, "rb") as f:
-                    while True:
-                        chunk = f.read(65536)
-                        if not chunk:
-                            break
-                        m.update(chunk)
+                st = os.stat(image_path)
+                m.update(os.path.abspath(image_path).lower().encode("utf-8"))
+                m.update(str(st.st_size).encode("utf-8"))
+                m.update(str(int(st.st_mtime)).encode("utf-8"))
             except Exception:
-                m.update(b"ERROR:cannot_read_single_image")
+                m.update(b"ERROR:cannot_stat_single_image")
             m.update(f"|strip={bool(strip_trailing_numbers)}|".encode("utf-8"))
             m.update(f"|output_dir={str(output_dir)}|".encode("utf-8"))
             return m.digest().hex()
