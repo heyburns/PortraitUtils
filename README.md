@@ -37,9 +37,6 @@ Updating is as simple as replacing this folder and restarting.
 - **FluxResolutionPrepare**  
   Crop and resize to Flux-friendly dimensions with optional pre-upscale. [Guide](docs/FluxResolutionPrepare.md)  
   <div align="center"><img src="docs/screenshots/flux_resolution_prepare.png" alt="FluxResolutionPrepare screenshot" width="300" /></div>
-- **ImageMegapixelSelector**  
-  Hit a target megapixel count to fit downstream memory limits. [Guide](docs/ImageMegapixelSelector.md)  
-  <div align="center"><img src="docs/screenshots/image_megapixel_selector.png" alt="ImageMegapixelSelector screenshot" width="300" /></div>
 
 ### Cropping & Framing
 - **AutoCropBorders**  
