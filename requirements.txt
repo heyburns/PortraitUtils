@@ -6,3 +6,6 @@ numpy>=1.24
 
 # Image encode/decode helpers (PIL)
 Pillow>=10.0
+
+# OpenCV for auto straightening
+opencv-python-headless>=4.5
