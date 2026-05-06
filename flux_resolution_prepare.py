@@ -159,7 +159,7 @@ def _select_target_combo(width: int, height: int):
         scale_dev = max(abs(scale_w - 1.0), abs(scale_h - 1.0))
         scale_mean = (abs(scale_w - 1.0) + abs(scale_h - 1.0)) * 0.5
 
-        key = (scale_dev, area_loss, scale_mean, ratio_delta, origin_delta, target.area)
+        key = (area_loss, scale_dev, scale_mean, ratio_delta, origin_delta, target.area)
         if best_key is None or key < best_key:
             best = (target, crop_w, crop_h, area_loss)
             best_key = key
