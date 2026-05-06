@@ -1,7 +1,7 @@
 # auto_adjust.py (extracted from ImageUtils.py)
 # Minimal standalone module containing AutoAdjustNode and AutoColorConfigNode
 import torch
-
+from .image_utils import enforce_image_format
 
 def _auto_color(rgb, use_color, snap_midtones):
     if not use_color:
@@ -229,14 +229,14 @@ class AutoAdjustNode:
         flip_horizontal,
     ):
         with torch.no_grad():
-            # Validate input — use explicit check rather than assert (which can be
-            # disabled by python -O and gives a less informative error message).
-            if not (image.ndim == 4 and image.shape[-1] in (3, 4)):
-                raise ValueError(
-                    f"Expected IMAGE tensor [B,H,W,3 or 4], got {tuple(image.shape)}"
-                )
+            image = enforce_image_format(image, force_rgb=False)
             has_alpha = image.shape[-1] == 4
-            rgb = image[..., :3].to(dtype=torch.float32)
+            
+            if image.shape[-1] == 1:
+                rgb = image.repeat(1, 1, 1, 3).to(dtype=torch.float32)
+            else:
+                rgb = image[..., :3].to(dtype=torch.float32)
+            
             rgb = rgb.clamp(0.0, 1.0)
             if has_alpha:
                 alpha = image[..., 3:4].to(dtype=torch.float32)

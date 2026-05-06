@@ -2,6 +2,7 @@ import torch
 import numpy as np
 import cv2
 
+from .image_utils import enforce_image_format
 class ProcessScannedPhoto:
     """Automatically straightens and crops scanned photos in a single pass."""
 
@@ -22,6 +23,7 @@ class ProcessScannedPhoto:
     CATEGORY = "PortraitUtils/Transform"
 
     def process(self, image, straighten, crop_mode, padding, threshold):
+        image = enforce_image_format(image, force_rgb=False)
         out_images = []
         for img_tensor in image:
             # Convert to numpy

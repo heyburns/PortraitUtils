@@ -154,8 +154,8 @@ class StitchByMask:
         target_height: int = 1080,
     ):
 
-        a = enforce_image_format(image_a)
-        b = enforce_image_format(image_b)
+        a = enforce_image_format(image_a, force_rgb=True)
+        b = enforce_image_format(image_b, force_rgb=True)
         if mask is not None:
             m = _mask_to_bhw1(mask)  # [B,H,W,1]
         else:
