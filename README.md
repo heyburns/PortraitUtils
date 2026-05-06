@@ -28,81 +28,100 @@ Updating is as simple as replacing this folder and restarting.
 ## Node Guide
 
 ### Image Adjustments & Preparation
-- **AutoAdjustNode + AutoColorConfigNode**  
-  Balance levels, tone, and colour. AutoAdjust mirrors Photoshop’s Auto Levels / Auto Tone / Auto Color, while AutoColorConfig shares those toggles across branches. [Guide](docs/AutoAdjustSuite.md)  
-  <div align="center"><img src="docs/screenshots/auto_adjust_node.png" alt="AutoAdjust suite screenshot" width="500" /></div>
-- **AutoWBColorMatch**  
+
+- **Auto Adjust (Levels/Tone/Color)**  
+  Balance levels, tone, and colour. Mirrors Photoshop’s Auto Levels / Auto Tone / Auto Color. [Guide](docs/AutoAdjustSuite.md)  
+  <div align="center"><img src="docs/screenshots/PLACEHOLDER_AUTO_ADJUST.png" alt="Auto Adjust screenshot" width="500" /></div>
+
+- **AutoColor Config**  
+  Shares the toggle settings for Auto Adjust across your workflow. [Guide](docs/AutoAdjustSuite.md)  
+  <div align="center"><img src="docs/screenshots/PLACEHOLDER_AUTO_COLOR_CONFIG.png" alt="AutoColor Config screenshot" width="500" /></div>
+
+- **Auto White-Balance + Color Match**  
   Match white balance to a reference frame using quick presets. [Guide](docs/AutoWBColorMatch.md)  
-  <div align="center"><img src="docs/screenshots/auto_wb_color_match.png" alt="AutoWBColorMatch screenshot" width="300" /></div>
-- **FluxResolutionPrepare**  
+  <div align="center"><img src="docs/screenshots/PLACEHOLDER_AUTO_WB.png" alt="AutoWBColorMatch screenshot" width="500" /></div>
+
+- **Flux Resolution Prepare**  
   Crop and resize to Flux-friendly dimensions with optional pre-upscale. [Guide](docs/FluxResolutionPrepare.md)  
-  <div align="center"><img src="docs/screenshots/flux_resolution_prepare.png" alt="FluxResolutionPrepare screenshot" width="300" /></div>
+  <div align="center"><img src="docs/screenshots/PLACEHOLDER_FLUX_PREPARE.png" alt="FluxResolutionPrepare screenshot" width="500" /></div>
 
 ### Cropping & Framing
-- **AutoCropBorders**  
-  Remove letterbox or scanner borders with CPU/GPU options. [Guide](docs/AutoCropBorders.md)  
-  <div align="center"><img src="docs/screenshots/auto_crop_borders.png" alt="AutoCropBorders screenshot" width="300" /></div>
-- **StripBottomBanner**  
-  Detect and trim dark metadata banners that sit against the bottom frame so your downstream crops only see the photo content. [Guide](docs/StripBottomBanner.md)  
-  <div align="center"><img src="docs/screenshots/strip_bottom_banner.png" alt="StripBottomBanner screenshot" width="500" /></div>
-- **StripSolidBorders**  
-  Peel away large flat-colour frames common in legacy scan/BBS collections, with iterative passes and logo-aware thresholds for multi-step borders. [Guide](docs/StripSolidBorders.md)  
-  <div align="center"><img src="docs/screenshots/strip_solid_borders.png" alt="StripSolidBorders screenshot" width="500" /></div>
-- **CropImageByMargins / CropMaskByMargins**  
-  Apply matching padding to RGB images and masks. [Guide](docs/CropByMarginsSuite.md)  
-  <div align="center"><img src="docs/screenshots/crop_image_by_margins.png" alt="Crop by margins suite screenshot" width="500" /></div>
-- **MQBBoxMin + FitAspectHeadSafe**  
-  Derive subject-aware crops with controllable headroom. [Guide](docs/FitAspectSuite.md)  
-  <div align="center"><img src="docs/screenshots/fit_aspect_head_safe.png" alt="FitAspect suite screenshot" width="500" /></div>
-- **StitchByMask**  
-  Blend layers with mask-guided falloff for composites. [Guide](docs/StitchByMask.md)  
-  <div align="center"><img src="docs/screenshots/stitch_by_mask.png" alt="StitchByMask screenshot" width="600" /></div>
+
+- **Intelligent AutoCrop (GPU)**  
+  Automatically snipe away ugly black letterboxing or solid borders using your graphics card. [Guide](docs/IntelligentAutoCrop.md)  
+  <div align="center"><img src="docs/screenshots/PLACEHOLDER_INTELLIGENT_AUTOCROP.png" alt="Intelligent AutoCrop screenshot" width="500" /></div>
+
+- **Process Scanned Photo**  
+  Automatically detect, straighten, and crop messy scanned photographs. [Guide](docs/ProcessScannedPhoto.md)  
+  <div align="center"><img src="docs/screenshots/PLACEHOLDER_PROCESS_SCANNED.png" alt="Process Scanned Photo screenshot" width="500" /></div>
+
+- **Crop by Margins (Image)**  
+  Apply precise pixel padding to your RGB images. [Guide](docs/CropByMarginsSuite.md)  
+  <div align="center"><img src="docs/screenshots/PLACEHOLDER_CROP_MARGINS_IMAGE.png" alt="Crop Image by Margins screenshot" width="500" /></div>
+
+- **Crop by Margins (Mask)**  
+  Apply precise pixel padding to your masks. [Guide](docs/CropByMarginsSuite.md)  
+  <div align="center"><img src="docs/screenshots/PLACEHOLDER_CROP_MARGINS_MASK.png" alt="Crop Mask by Margins screenshot" width="500" /></div>
+
+- **MQ BBox (MIN)**  
+  Derive subject-aware crops based on noisy masks using smart quantiles. [Guide](docs/FitAspectSuite.md)  
+  <div align="center"><img src="docs/screenshots/PLACEHOLDER_MQ_BBOX.png" alt="MQ BBox screenshot" width="500" /></div>
+
+- **Fit Aspect (Head-Safe) - Closest AR + Tight Cover**  
+  Snap to aspect ratios while protecting headroom and footroom. [Guide](docs/FitAspectSuite.md)  
+  <div align="center"><img src="docs/screenshots/PLACEHOLDER_FIT_ASPECT.png" alt="Fit Aspect screenshot" width="500" /></div>
+
+- **Outpaint Padding Compute**  
+  Translates your outpainting preferences into exact pixel padding values. [Guide](docs/OutpaintSuite.md)  
+  <div align="center"><img src="docs/screenshots/PLACEHOLDER_OUTPAINT_COMPUTE.png" alt="Outpaint Compute screenshot" width="500" /></div>
+
+- **Stitch Two Images by Mask**  
+  Blend layers together using mask-guided falloffs for seamless composites. [Guide](docs/StitchByMask.md)  
+  <div align="center"><img src="docs/screenshots/PLACEHOLDER_STITCH.png" alt="Stitch by Mask screenshot" width="500" /></div>
 
 ### Prompting & Configuration
 
-- **WorkflowConfig**  
-  Centralise run parameters, presets, and notes; outputs both sockets and a JSON bundle. [Guide](docs/WorkflowConfig.md)  
-  <div align="center"><img src="docs/screenshots/workflow_config.png" alt="WorkflowConfig screenshot" width="300" /></div>
-- **OutpaintConfigNode + OutpaintPaddingComputeNode**  
-  Store outpaint preferences and convert them to pixel padding per edge. [Guide](docs/OutpaintSuite.md)  
-  <div align="center"><img src="docs/screenshots/outpaint_config_node.png" alt="Outpaint suite screenshot" width="500" /></div>
+- **Universal Project Config**  
+  The ultimate master control board. Replaces messy spaghetti wiring with a single settings bundle! [Guide](docs/UniversalConfigSuite.md)  
+  <div align="center"><img src="docs/screenshots/PLACEHOLDER_UNIVERSAL_CONFIG.png" alt="Universal Config screenshot" width="500" /></div>
+
+- **Extract Config Value**  
+  The wireless receiver for your Universal Config bundle. [Guide](docs/UniversalConfigSuite.md)  
+  <div align="center"><img src="docs/screenshots/PLACEHOLDER_EXTRACT_CONFIG.png" alt="Extract Config screenshot" width="500" /></div>
+
+- **Outpaint Config**  
+  Store outpaint gravity and percentage preferences securely. [Guide](docs/OutpaintSuite.md)  
+  <div align="center"><img src="docs/screenshots/PLACEHOLDER_OUTPAINT_CONFIG.png" alt="Outpaint Config screenshot" width="500" /></div>
 
 ### I/O & Utilities
-- **LoadImageCombined**  
-  Hybrid single/batch loader with auto-advance support. [Guide](docs/LoadImageCombined.md)  
-  <div align="center"><img src="docs/screenshots/load_image_combined.png" alt="LoadImageCombined screenshot" width="200" /></div>
-- **PairedImageLoader**  
-  Pull matched before/after pairs for QA passes. [Guide](docs/PairedImageLoader.md)  
-  <div align="center"><img src="docs/screenshots/portraitutils_paired_image_loader.png" alt="PairedImageLoader screenshot" width="600" /></div>
-- **ComparisonGate**  
-  Hold viewers until you have two images-no more half renders. [Guide](docs/ComparisonGate.md)  
-  <div align="center"><img src="docs/screenshots/comparison_gate.png" alt="ComparisonGate screenshot" width="500" /></div>
-- **SimpleImageSaver**  
-  Save PNG/JPG with metadata and suffix controls. [Guide](docs/SimpleImageSaver.md)  
-  <div align="center"><img src="docs/screenshots/simple_image_saver.png" alt="SimpleImageSaver screenshot" width="300" /></div>
-- **FilenameAppendSuffix**  
-  Append suffixes without breaking multi-part extensions. [Guide](docs/FilenameAppendSuffix.md)  
-  <div align="center"><img src="docs/screenshots/filename_append_suffix.png" alt="FilenameAppendSuffix screenshot" width="300" /></div>
 
+- **Load Image (Combined)**  
+  A slick hybrid loader for grabbing single images or plowing through entire batches automatically. [Guide](docs/LoadImageCombined.md)  
+  <div align="center"><img src="docs/screenshots/PLACEHOLDER_LOAD_IMAGE.png" alt="Load Image Combined screenshot" width="500" /></div>
 
-Screenshots under `docs/screenshots/` match the ComfyUI widgets so you can confirm you grabbed the right node.
+- **Paired Image Loader**  
+  Pull matched before/after pairs directly from your folders for quick comparison passes. [Guide](docs/PairedImageLoader.md)  
+  <div align="center"><img src="docs/screenshots/PLACEHOLDER_PAIRED_LOADER.png" alt="Paired Image Loader screenshot" width="500" /></div>
+
+- **Simple Image Saver**  
+  Save your PNGs or JPGs quickly with custom suffixes and full metadata support. [Guide](docs/SimpleImageSaver.md)  
+  <div align="center"><img src="docs/screenshots/PLACEHOLDER_IMAGE_SAVER.png" alt="Simple Image Saver screenshot" width="500" /></div>
+
+- **Filename: Append Suffix**  
+  Add suffixes to your filenames safely without breaking tricky multi-part extensions. [Guide](docs/FilenameAppendSuffix.md)  
+  <div align="center"><img src="docs/screenshots/PLACEHOLDER_FILENAME_SUFFIX.png" alt="Filename Append Suffix screenshot" width="500" /></div>
+
+- **Comparison Gate**  
+  Pauses the workflow until two incoming images are ready, ensuring they pop out at the exact same time. [Guide](docs/ComparisonGate.md)  
+  <div align="center"><img src="docs/screenshots/PLACEHOLDER_COMPARISON_GATE.png" alt="Comparison Gate screenshot" width="500" /></div>
 
 ---
 
 ## Tips Before You Wire
 
-- **Shared toggles** – drive multiple `AutoAdjustNode` blocks with one `AutoColorConfigNode` when branches need the same look.
-- **Debug strings** – cropping utilities (`MQBBoxMin`, `FitAspectHeadSafe`, `FluxResolutionPrepare`) emit detailed notes; pipe them into log widgets while tuning.
-- **JSON bundles** – `WorkflowConfig` emits a single string you can unpack in custom scripts to sync settings everywhere.
-- **GPU switches** – nodes like `AutoCropBorders` expose `use_gpu`; flip them based on the machine you run on.
-
----
-
-## Terminology Refresh
-
-- **Bundle** – JSON string from `WorkflowConfig` that carries current settings.
-- **Quantile crop** – `MQBBoxMin` trims mask outliers by percentile; tweak the `q_*` sliders when masks are noisy.
-- **Area loss** – `FluxResolutionPrepare` reports how much of the working image gets trimmed to hit a Flux aspect.
+- **Shared toggles** – drive multiple `Auto Adjust` blocks with one `AutoColor Config` when branches need the exact same look.
+- **Debug strings** – cropping utilities emit detailed notes; pipe them into log widgets while tuning.
+- **JSON bundles** – `Universal Project Config` emits a single string you can unpack anywhere with `Extract Config Value` to sync settings everywhere.
 
 ---
 
