@@ -237,8 +237,11 @@ class AutoAdjustNode:
                 raise ValueError(
                     f"Expected IMAGE tensor [B,H,W,3 or 4], got {tuple(image.shape)}"
                 )
+            has_alpha = image.shape[-1] == 4
             rgb = image[..., :3].to(dtype=torch.float32)
             rgb = _clamp01(rgb)
+            if has_alpha:
+                alpha = image[..., 3:4].to(dtype=torch.float32)
 
             if precision not in ("Histogram (fast)", "Exact"):
                 precision = "Histogram (fast)"
@@ -249,8 +252,13 @@ class AutoAdjustNode:
 
             if flip_horizontal:
                 rgb = torch.flip(rgb, dims=[2])
+                if has_alpha:
+                    alpha = torch.flip(alpha, dims=[2])
 
             out = _clamp01(rgb)
+            if has_alpha:
+                out = torch.cat([out, alpha], dim=-1)
+                
             return (out,)
 
 # ============================================================
