@@ -127,4 +127,4 @@ Updating is as simple as replacing this folder and restarting.
 
 ## License
 
-MIT – see [LICENSE](LICENSE).
+GPLv3 – see [LICENSE](LICENSE).
