@@ -59,9 +59,7 @@ Updating is as simple as replacing this folder and restarting.
   <div align="center"><img src="docs/screenshots/stitch_by_mask.png" alt="StitchByMask screenshot" width="600" /></div>
 
 ### Prompting & Configuration
-- **MultiPromptNode**  
-  Rotate through prompt variants with per-slot weights. [Guide](docs/MultiPromptNode.md)  
-  <div align="center"><img src="docs/screenshots/multi_prompt_node.png" alt="MultiPromptNode screenshot" width="300" /></div>
+
 - **WorkflowConfig**  
   Centralise run parameters, presets, and notes; outputs both sockets and a JSON bundle. [Guide](docs/WorkflowConfig.md)  
   <div align="center"><img src="docs/screenshots/workflow_config.png" alt="WorkflowConfig screenshot" width="300" /></div>
