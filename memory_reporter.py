@@ -70,7 +70,7 @@ class MemoryReporter:
     RETURN_TYPES  = ("IMAGE", "STRING")
     RETURN_NAMES  = ("image", "memory_report")
     FUNCTION      = "report"
-    CATEGORY      = "debug"
+    CATEGORY      = "PortraitUtils/Debug"
     OUTPUT_NODE   = True  # always execute even if downstream is muted
 
     @classmethod

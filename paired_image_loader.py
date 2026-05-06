@@ -105,7 +105,7 @@ def _coerce_str(value) -> str:
 
 
 class PairedImageLoader:
-    CATEGORY = "PortraitUtils"
+    CATEGORY = "PortraitUtils/IO"
     RETURN_TYPES = ("IMAGE", "IMAGE", "STRING")
     FUNCTION = "load_next_pair"
     RETURN_NAMES = ("output_image", "source_image", "filename")

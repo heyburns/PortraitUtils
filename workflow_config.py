@@ -127,7 +127,7 @@ class UniversalProjectConfig:
     RETURN_TYPES = tuple(_dynamic_types) + ("STRING", "INT")
     RETURN_NAMES = tuple(_dynamic_keys) + ("config_bundle", "seed")
     FUNCTION = "configure"
-    CATEGORY = "config/universal"
+    CATEGORY = "PortraitUtils/Config"
 
     @classmethod
     def IS_CHANGED(cls, **kwargs):
@@ -179,7 +179,7 @@ class ExtractConfigValue:
     RETURN_TYPES = (ANY_TYPE,)
     RETURN_NAMES = ("value",)
     FUNCTION = "extract"
-    CATEGORY = "config/universal"
+    CATEGORY = "PortraitUtils/Config"
 
     def extract(self, **kwargs):
         config_bundle = kwargs.get("config_bundle", "")

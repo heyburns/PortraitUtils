@@ -24,7 +24,7 @@ def _auto_color(rgb, use_color, snap_midtones):
 
     ycbcr = torch.cat([Y, Cb, Cr], dim=-1)
     out = _ycbcr_to_rgb(ycbcr)
-    return _clamp01(out)
+    return out.clamp(0.0, 1.0)
 
 
 def _median_masked(ch, msk):
@@ -84,7 +84,7 @@ def _auto_levels(rgb, use_levels, shadow_pct, highlight_pct, gamma_norm, precisi
                     if gamma != 0.0:
                         stretched[b:b + 1] = torch.clamp(stretched[b:b + 1], 1e-6, 1.0) ** gamma
 
-    return _clamp01(stretched)
+    return stretched.clamp(0.0, 1.0)
 
 
 def _auto_tone(rgb, use_tone, mode, shadow_pct, highlight_pct, precision_mode):
@@ -107,7 +107,7 @@ def _auto_tone(rgb, use_tone, mode, shadow_pct, highlight_pct, precision_mode):
                 return (_percentiles_exact(ch, 1.0 - (p / 100.0)) if precision_mode == "Exact" else _percentiles_hist(ch, 1.0 - (p / 100.0)))
             high = torch.cat([pct_hi(rgb[..., i:i+1], highlight_pct) for i in range(3)], dim=-1)
         stretched = _linear_stretch(rgb, low, high)
-        return _clamp01(stretched)
+        return stretched.clamp(0.0, 1.0)
 
     # Monochromatic: stretch only luma
     ycbcr = _rgb_to_ycbcr(rgb)
@@ -122,11 +122,9 @@ def _auto_tone(rgb, use_tone, mode, shadow_pct, highlight_pct, precision_mode):
     Ys = _linear_stretch_scalar(Y, low, high)
     ycbcr = torch.cat([Ys, ycbcr[..., 1:2], ycbcr[..., 2:3]], dim=-1)
     out = _ycbcr_to_rgb(ycbcr)
-    return _clamp01(out)
+    return out.clamp(0.0, 1.0)
 
 
-def _clamp01(x):
-    return torch.clamp(x, 0.0, 1.0)
 
 
 def _linear_stretch(x, low, high):
@@ -217,7 +215,7 @@ class AutoAdjustNode:
 
     RETURN_TYPES = ("IMAGE",)
     FUNCTION = "apply"
-    CATEGORY = "image/adjustment"
+    CATEGORY = "PortraitUtils/Adjustment"
 
     def apply(
         self,
@@ -239,7 +237,7 @@ class AutoAdjustNode:
                 )
             has_alpha = image.shape[-1] == 4
             rgb = image[..., :3].to(dtype=torch.float32)
-            rgb = _clamp01(rgb)
+            rgb = rgb.clamp(0.0, 1.0)
             if has_alpha:
                 alpha = image[..., 3:4].to(dtype=torch.float32)
 
@@ -255,7 +253,7 @@ class AutoAdjustNode:
                 if has_alpha:
                     alpha = torch.flip(alpha, dims=[2])
 
-            out = _clamp01(rgb)
+            out = rgb.clamp(0.0, 1.0)
             if has_alpha:
                 out = torch.cat([out, alpha], dim=-1)
                 
@@ -280,7 +278,7 @@ class AutoColorConfigNode:
     RETURN_TYPES = ("BOOLEAN", "BOOLEAN", "BOOLEAN", "BOOLEAN")
     RETURN_NAMES = ("auto_levels", "auto_tone", "auto_color", "flip_horizontal")
     FUNCTION = "apply"
-    CATEGORY = "config"
+    CATEGORY = "PortraitUtils/Config"
 
     def apply(self, auto_levels, auto_tone, auto_color, flip_horizontal):
         return (auto_levels, auto_tone, auto_color, flip_horizontal)

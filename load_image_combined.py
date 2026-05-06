@@ -143,7 +143,7 @@ class LoadImageCombined:
             }
         }
 
-    CATEGORY = "image/io"
+    CATEGORY = "PortraitUtils/IO"
     RETURN_TYPES = ("IMAGE", "STRING", "STRING", "INT", "INT")
     RETURN_NAMES = ("IMAGE", "filename_no_ext", "output_dir", "width", "height")
     FUNCTION = "load_image"

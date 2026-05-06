@@ -1,13 +1,7 @@
 import torch
 import torch.nn.functional as F
 
-def _to_bhwc(img: torch.Tensor) -> torch.Tensor:
-    # Accept [H,W,C] or [B,H,W,C]; ensure float32 0..1
-    if img.dim() == 3:
-        img = img.unsqueeze(0)
-    if img.dim() != 4 or img.size(-1) not in (1, 3, 4):
-        raise ValueError(f"IMAGE must be [B,H,W,C] (C=1/3/4), got {tuple(img.shape)}")
-    return img.to(torch.float32).clamp(0.0, 1.0)
+from .image_utils import enforce_image_format
 
 
 def _resize_bhwc(x: torch.Tensor, h: int, w: int, mode: str) -> torch.Tensor:
@@ -125,7 +119,7 @@ class StitchByMask:
     RETURN_TYPES = ("IMAGE", "MASK")
     RETURN_NAMES = ("stitched", "processed_mask")
     FUNCTION = "blend"
-    CATEGORY = "Image/Composite"
+    CATEGORY = "PortraitUtils/Composite"
 
     def blend(
         self,
@@ -160,8 +154,8 @@ class StitchByMask:
         target_height: int = 1080,
     ):
 
-        a = _to_bhwc(image_a)
-        b = _to_bhwc(image_b)
+        a = enforce_image_format(image_a)
+        b = enforce_image_format(image_b)
         if mask is not None:
             m = _mask_to_bhw1(mask)  # [B,H,W,1]
         else:

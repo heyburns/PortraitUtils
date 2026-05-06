@@ -1,6 +1,7 @@
 from __future__ import annotations
 import torch
 import torch.nn.functional as F
+from .image_utils import enforce_image_format
 
 # ---------------------------
 # sRGB <-> Linear helpers
@@ -85,11 +86,7 @@ def lab_to_rgb(lab):  # [B,H,W,3]
 # ---------------------------
 # Utility
 # ---------------------------
-def to_bhwc(x):
-    if x.dim()==3: x = x.unsqueeze(0)
-    assert x.dim()==4 and x.shape[-1] in (3,4), f"Expected [B,H,W,3/4], got {tuple(x.shape)}"
-    if x.shape[-1]==4: x = x[...,:3]
-    return x.float().clamp(0,1)
+
 
 def resize_bhwc(x, h, w, mode='bilinear'):
     return F.interpolate(x.permute(0,3,1,2), size=(h,w), mode=mode, align_corners=False).permute(0,2,3,1)
@@ -179,14 +176,14 @@ class AutoWBColorMatch:
 
     RETURN_TYPES = ("IMAGE",)
     FUNCTION = "run"
-    CATEGORY = "Image/Color"
+    CATEGORY = "PortraitUtils/Analysis"
 
     def run(self, image, reference, method="wb_highlight+reinhard",
             percentile=95.0, strength=1.0, clip_gamut=True,
             force_size=False, target_width=1440, target_height=1080):
         with torch.no_grad():
-            src = to_bhwc(image)
-            ref = to_bhwc(reference)
+            src = enforce_image_format(image, force_rgb=True)
+            ref = enforce_image_format(reference, force_rgb=True)
 
             if force_size:
                 th, tw = target_height, target_width

@@ -34,7 +34,7 @@ class FilenameAppendSuffix:
     RETURN_TYPES = ("STRING",)
     RETURN_NAMES = ("filename",)
     FUNCTION = "build"
-    CATEGORY = "Utils/IO"
+    CATEGORY = "PortraitUtils/String"
 
     def build(
         self,

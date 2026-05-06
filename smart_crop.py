@@ -157,7 +157,7 @@ class MQBBoxMin:
     RETURN_TYPES = ("INT", "INT", "INT", "INT", "STRING")
     RETURN_NAMES = ("x", "y", "w", "h", "debug")
     FUNCTION = "run"
-    CATEGORY = "utils/debug"
+    CATEGORY = "PortraitUtils/Transform"
 
     def run(self, mask, invert_mask, q_left, q_right, q_top, q_bottom, min_span_px, tight_crop=True):
         m = _to_numpy_mask(mask)
@@ -303,7 +303,7 @@ class FitAspectHeadSafe:
     RETURN_TYPES = ("INT", "INT", "INT", "INT", "STRING", "STRING")
     RETURN_NAMES = ("w", "h", "x", "y", "aspect_used", "debug")
     FUNCTION = "run"
-    CATEGORY = "utils/geometry"
+    CATEGORY = "PortraitUtils/Transform"
 
     def run(
         self,

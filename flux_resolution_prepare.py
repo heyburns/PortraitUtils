@@ -14,6 +14,7 @@ from typing import List, Optional, Tuple
 
 import torch
 import torch.nn.functional as F
+from .image_utils import enforce_image_format
 
 @dataclass(frozen=True)
 class _TargetResolution:
@@ -83,17 +84,7 @@ def _build_target_resolutions() -> Tuple[_TargetResolution, ...]:
 _TARGET_RESOLUTIONS: Tuple[_TargetResolution, ...] = _build_target_resolutions()
 
 
-def _ensure_bhwc(image) -> torch.Tensor:
-    tensor = image
-    if not isinstance(tensor, torch.Tensor):
-        tensor = torch.tensor(tensor)
-    if tensor.dim() == 3:
-        tensor = tensor.unsqueeze(0)
-    if tensor.dim() != 4:
-        raise ValueError(f"Expected IMAGE tensor [B,H,W,C], got {tuple(tensor.shape)}")
-    if tensor.shape[-1] not in (3, 4):
-        raise ValueError("IMAGE tensor must have 3 (RGB) or 4 (RGBA) channels")
-    return tensor.to(torch.float32).clamp(0.0, 1.0)
+
 
 
 def _resize_sample(sample: torch.Tensor, height: int, width: int) -> torch.Tensor:
@@ -214,7 +205,7 @@ class FluxResolutionPrepare:
     RETURN_TYPES = ("IMAGE", "STRING", "INT", "INT", "FLOAT", "FLOAT")
     RETURN_NAMES = ("image", "ratio", "target_width", "target_height", "area_loss_percent", "pre_scale_factor")
     FUNCTION = "apply"
-    CATEGORY = "image/transform"
+    CATEGORY = "PortraitUtils/Transform"
 
     def apply(
         self,
@@ -227,7 +218,7 @@ class FluxResolutionPrepare:
         crop_y=0,
     ):
         with torch.no_grad():
-            tensor = _ensure_bhwc(image)
+            tensor = enforce_image_format(image)
             if tensor.shape[0] != 1:
                 raise ValueError("FluxResolutionPrepare expects an unbatched IMAGE tensor (B=1)")
 

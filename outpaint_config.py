@@ -62,7 +62,7 @@ class OutpaintConfigNode:
         "bottom_px",
     )
     FUNCTION = "apply"
-    CATEGORY = "config"
+    CATEGORY = "PortraitUtils/Config"
 
     def apply(
         self,
@@ -127,7 +127,7 @@ class OutpaintPaddingComputeNode:
     RETURN_TYPES = ("INT", "INT", "INT", "INT")
     RETURN_NAMES = ("left", "top", "right", "bottom")
     FUNCTION = "compute"
-    CATEGORY = "image/transform"
+    CATEGORY = "PortraitUtils/Config"
 
     def _get_wh(self, image_tensor):
         if not torch.is_tensor(image_tensor):

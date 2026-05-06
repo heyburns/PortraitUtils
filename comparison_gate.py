@@ -60,7 +60,7 @@ class ComparisonGate:
     RETURN_TYPES = ("IMAGE", "IMAGE")
     RETURN_NAMES = ("final_image", "source_image")
     FUNCTION = "forward_images"
-    CATEGORY = "PortraitUtils"
+    CATEGORY = "PortraitUtils/Debug"
 
     def forward_images(
         self,

@@ -4,31 +4,7 @@ import torch.nn.functional as _iutils_F
 _iutils_torch = torch
 
 
-def _iutils_ensure_bhwc_rgb(image):
-    t = image
-    if not isinstance(t, _iutils_torch.Tensor):
-        t = _iutils_torch.tensor(t)
-    t = t.to(_iutils_torch.float32)
-    if t.dim() == 3:
-        t = t.unsqueeze(0)
-    # Expect [B,H,W,C]
-    if t.shape[-1] == 3:
-        return t.clamp(0.0, 1.0)
-    elif t.shape[-1] > 3:
-        return t[..., :3].clamp(0.0, 1.0)
-    elif t.shape[-1] == 1:
-        return t.repeat(1, 1, 1, 3).clamp(0.0, 1.0)
-    else:
-        return t.clamp(0.0, 1.0)
-
-
-def _to_bhwc(x: torch.Tensor) -> torch.Tensor:
-    # Accept [H,W,C] or [B,H,W,C]
-    if x.dim() == 3:
-        x = x.unsqueeze(0)
-    if x.dim() != 4:
-        raise ValueError(f"Expected [B,H,W,C] or [H,W,C], got {tuple(x.shape)}")
-    return x
+from .image_utils import enforce_image_format
 
 
 def _crop_bhwc(img: torch.Tensor, left: int, top: int, right: int, bottom: int, multiple: int) -> torch.Tensor:
@@ -77,10 +53,10 @@ class CropImageByMargins:
 
     RETURN_TYPES = ("IMAGE",)
     FUNCTION = "crop"
-    CATEGORY = "Image/Transform"
+    CATEGORY = "PortraitUtils/Transform"
 
     def crop(self, image, left_px, top_px, right_px, bottom_px, snap_multiple=1):
-        x = _to_bhwc(image)
+        x = enforce_image_format(image)
         y = _crop_bhwc(x, left_px, top_px, right_px, bottom_px, snap_multiple)
         return (y.clamp(0.0, 1.0),)
 
@@ -103,7 +79,7 @@ class CropMaskByMargins:
 
     RETURN_TYPES = ("MASK",)
     FUNCTION = "crop"
-    CATEGORY = "Mask/Transform"
+    CATEGORY = "PortraitUtils/Transform"
 
     def crop(self, mask, left_px, top_px, right_px, bottom_px, snap_multiple=1):
         # Normalize mask to [B,H,W,1]

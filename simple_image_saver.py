@@ -155,7 +155,7 @@ class SimpleImageSaver:
     RETURN_TYPES = ()
     FUNCTION = "save"
     OUTPUT_NODE = True
-    CATEGORY = "image"
+    CATEGORY = "PortraitUtils/IO"
 
     def save(
         self,

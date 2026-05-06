@@ -1,21 +1,7 @@
 import torch
 import torch.nn.functional as F
 
-def _ensure_bhwc_rgb(image: torch.Tensor) -> torch.Tensor:
-    t = image
-    if not isinstance(t, torch.Tensor):
-        t = torch.tensor(t)
-    t = t.to(torch.float32)
-    if t.dim() == 3:
-        t = t.unsqueeze(0)
-    if t.dim() != 4:
-        raise ValueError(f"Expected tensor with 4 dims (B,H,W,C), got {tuple(t.shape)}")
-    ch = t.shape[-1]
-    if ch == 3:
-        return t.clamp(0.0, 1.0)
-    if ch == 1:
-        return t.repeat(1, 1, 1, 3).clamp(0.0, 1.0)
-    return t[..., :3].clamp(0.0, 1.0)
+from .image_utils import enforce_image_format
 
 def _rgb_to_luma(rgb: torch.Tensor) -> torch.Tensor:
     weights = torch.tensor([0.2126, 0.7152, 0.0722], device=rgb.device, dtype=rgb.dtype)
@@ -96,14 +82,14 @@ class IntelligentAutoCrop:
     RETURN_TYPES = ("IMAGE", "INT", "INT", "INT", "INT", "BOOLEAN")
     RETURN_NAMES = ("image", "trim_left", "trim_top", "trim_right", "trim_bottom", "detected")
     FUNCTION = "run"
-    CATEGORY = "Image/Transform"
+    CATEGORY = "PortraitUtils/Transform"
 
     def run(self, image, strip_bottom_banner=True, detect_borders=True, fuzz_tolerance=0.04, edge_uniformity=0.75, pad_px=0):
         with torch.no_grad():
             return self._run_inner(image, strip_bottom_banner, detect_borders, fuzz_tolerance, edge_uniformity, pad_px)
 
     def _run_inner(self, image, strip_bottom_banner=True, detect_borders=True, fuzz_tolerance=0.04, edge_uniformity=0.75, pad_px=0):
-        img = _ensure_bhwc_rgb(image)
+        img = enforce_image_format(image, force_rgb=True)
         B, H, W, C = img.shape
         
         out_images = []
