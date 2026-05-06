@@ -10,13 +10,7 @@ This repository was developed with the assistance of AI coding tools, including 
 
 ## Scope of AI Involvement
 
-AI assistance was used across various parts of this project, including but not limited to:
-
-- Refactoring the `WorkflowConfig` node into the schema-driven `UniversalProjectConfig` architecture
-- Implementing the `ExtractConfigValue` utility node
-- Debugging and patching custom ComfyUI nodes for compatibility
-- Logic fixes in `OutpaintPaddingComputeNode` (gravity direction)
-- General code review and cleanup
+AI assistance was used across various parts of this project to assist with general code generation, bug fixing, documentation, and structural refactoring. The AI acted strictly as a coding assistant to execute the developer's instructions, optimize logic, and streamline the overall development process.
 
 ## Philosophy
 
