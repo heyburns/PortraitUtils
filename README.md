@@ -31,19 +31,19 @@ Updating is as simple as replacing this folder and restarting.
 
 - **Auto Adjust (Levels/Tone/Color)**  
   Balance levels, tone, and colour. Mirrors Photoshop’s Auto Levels / Auto Tone / Auto Color. [Guide](docs/AutoAdjustSuite.md)  
-  <div align="center"><img src="docs/screenshots/PLACEHOLDER_AUTO_ADJUST.png" alt="Auto Adjust screenshot" width="500" /></div>
+  <div align="center"><img src="docs/screenshots/auto_adjust_node.png" alt="Auto Adjust screenshot" width="500" /></div>
 
 - **AutoColor Config**  
   Shares the toggle settings for Auto Adjust across your workflow. [Guide](docs/AutoAdjustSuite.md)  
-  <div align="center"><img src="docs/screenshots/PLACEHOLDER_AUTO_COLOR_CONFIG.png" alt="AutoColor Config screenshot" width="500" /></div>
+  <div align="center"><img src="docs/screenshots/auto_color_config_node.png" alt="AutoColor Config screenshot" width="500" /></div>
 
 - **Auto White-Balance + Color Match**  
   Match white balance to a reference frame using quick presets. [Guide](docs/AutoWBColorMatch.md)  
-  <div align="center"><img src="docs/screenshots/PLACEHOLDER_AUTO_WB.png" alt="AutoWBColorMatch screenshot" width="500" /></div>
+  <div align="center"><img src="docs/screenshots/auto_wb_color_match.png" alt="AutoWBColorMatch screenshot" width="500" /></div>
 
 - **Flux Resolution Prepare**  
   Crop and resize to Flux-friendly dimensions with optional pre-upscale. [Guide](docs/FluxResolutionPrepare.md)  
-  <div align="center"><img src="docs/screenshots/PLACEHOLDER_FLUX_PREPARE.png" alt="FluxResolutionPrepare screenshot" width="500" /></div>
+  <div align="center"><img src="docs/screenshots/flux_resolution_prepare.png" alt="FluxResolutionPrepare screenshot" width="500" /></div>
 
 ### Cropping & Framing
 
@@ -57,27 +57,27 @@ Updating is as simple as replacing this folder and restarting.
 
 - **Crop by Margins (Image)**  
   Apply precise pixel padding to your RGB images. [Guide](docs/CropByMarginsSuite.md)  
-  <div align="center"><img src="docs/screenshots/PLACEHOLDER_CROP_MARGINS_IMAGE.png" alt="Crop Image by Margins screenshot" width="500" /></div>
+  <div align="center"><img src="docs/screenshots/crop_image_by_margins.png" alt="Crop Image by Margins screenshot" width="500" /></div>
 
 - **Crop by Margins (Mask)**  
   Apply precise pixel padding to your masks. [Guide](docs/CropByMarginsSuite.md)  
-  <div align="center"><img src="docs/screenshots/PLACEHOLDER_CROP_MARGINS_MASK.png" alt="Crop Mask by Margins screenshot" width="500" /></div>
+  <div align="center"><img src="docs/screenshots/crop_image_by_margins.png" alt="Crop Mask by Margins screenshot" width="500" /></div>
 
 - **MQ BBox (MIN)**  
   Derive subject-aware crops based on noisy masks using smart quantiles. [Guide](docs/FitAspectSuite.md)  
-  <div align="center"><img src="docs/screenshots/PLACEHOLDER_MQ_BBOX.png" alt="MQ BBox screenshot" width="500" /></div>
+  <div align="center"><img src="docs/screenshots/mq_bbox_min.png" alt="MQ BBox screenshot" width="500" /></div>
 
 - **Fit Aspect (Head-Safe) - Closest AR + Tight Cover**  
   Snap to aspect ratios while protecting headroom and footroom. [Guide](docs/FitAspectSuite.md)  
-  <div align="center"><img src="docs/screenshots/PLACEHOLDER_FIT_ASPECT.png" alt="Fit Aspect screenshot" width="500" /></div>
+  <div align="center"><img src="docs/screenshots/fit_aspect_head_safe.png" alt="Fit Aspect screenshot" width="500" /></div>
 
 - **Outpaint Padding Compute**  
   Translates your outpainting preferences into exact pixel padding values. [Guide](docs/OutpaintSuite.md)  
-  <div align="center"><img src="docs/screenshots/PLACEHOLDER_OUTPAINT_COMPUTE.png" alt="Outpaint Compute screenshot" width="500" /></div>
+  <div align="center"><img src="docs/screenshots/outpaint_padding_compute_node.png" alt="Outpaint Compute screenshot" width="500" /></div>
 
 - **Stitch Two Images by Mask**  
   Blend layers together using mask-guided falloffs for seamless composites. [Guide](docs/StitchByMask.md)  
-  <div align="center"><img src="docs/screenshots/PLACEHOLDER_STITCH.png" alt="Stitch by Mask screenshot" width="500" /></div>
+  <div align="center"><img src="docs/screenshots/stitch_by_mask.png" alt="Stitch by Mask screenshot" width="500" /></div>
 
 ### Prompting & Configuration
 
@@ -91,29 +91,29 @@ Updating is as simple as replacing this folder and restarting.
 
 - **Outpaint Config**  
   Store outpaint gravity and percentage preferences securely. [Guide](docs/OutpaintSuite.md)  
-  <div align="center"><img src="docs/screenshots/PLACEHOLDER_OUTPAINT_CONFIG.png" alt="Outpaint Config screenshot" width="500" /></div>
+  <div align="center"><img src="docs/screenshots/outpaint_config_node.png" alt="Outpaint Config screenshot" width="500" /></div>
 
 ### I/O & Utilities
 
 - **Load Image (Combined)**  
   A slick hybrid loader for grabbing single images or plowing through entire batches automatically. [Guide](docs/LoadImageCombined.md)  
-  <div align="center"><img src="docs/screenshots/PLACEHOLDER_LOAD_IMAGE.png" alt="Load Image Combined screenshot" width="500" /></div>
+  <div align="center"><img src="docs/screenshots/load_image_combined.png" alt="Load Image Combined screenshot" width="500" /></div>
 
 - **Paired Image Loader**  
   Pull matched before/after pairs directly from your folders for quick comparison passes. [Guide](docs/PairedImageLoader.md)  
-  <div align="center"><img src="docs/screenshots/PLACEHOLDER_PAIRED_LOADER.png" alt="Paired Image Loader screenshot" width="500" /></div>
+  <div align="center"><img src="docs/screenshots/portraitutils_paired_image_loader.png" alt="Paired Image Loader screenshot" width="500" /></div>
 
 - **Simple Image Saver**  
   Save your PNGs or JPGs quickly with custom suffixes and full metadata support. [Guide](docs/SimpleImageSaver.md)  
-  <div align="center"><img src="docs/screenshots/PLACEHOLDER_IMAGE_SAVER.png" alt="Simple Image Saver screenshot" width="500" /></div>
+  <div align="center"><img src="docs/screenshots/simple_image_saver.png" alt="Simple Image Saver screenshot" width="500" /></div>
 
 - **Filename: Append Suffix**  
   Add suffixes to your filenames safely without breaking tricky multi-part extensions. [Guide](docs/FilenameAppendSuffix.md)  
-  <div align="center"><img src="docs/screenshots/PLACEHOLDER_FILENAME_SUFFIX.png" alt="Filename Append Suffix screenshot" width="500" /></div>
+  <div align="center"><img src="docs/screenshots/filename_append_suffix.png" alt="Filename Append Suffix screenshot" width="500" /></div>
 
 - **Comparison Gate**  
   Pauses the workflow until two incoming images are ready, ensuring they pop out at the exact same time. [Guide](docs/ComparisonGate.md)  
-  <div align="center"><img src="docs/screenshots/PLACEHOLDER_COMPARISON_GATE.png" alt="Comparison Gate screenshot" width="500" /></div>
+  <div align="center"><img src="docs/screenshots/comparison_gate.png" alt="Comparison Gate screenshot" width="500" /></div>
 
 ---
 
