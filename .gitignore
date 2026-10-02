@@ -1,2 +1,7 @@
 __pycache__/
 *.pyc
+
+# Editor recovery files and patch backups are not release assets.
+.*.kate-swp
+*.orig
+*.rej

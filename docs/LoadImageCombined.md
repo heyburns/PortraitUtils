@@ -1,48 +1,32 @@
-# LoadImageCombined
+# Load Image + Source Info
 
-`LoadImageCombined` is a flexible image loader that handles single files, folders, and auto-advancing batches in one node. It keeps multi-shot reviews moving without juggling separate loaders.
-
----
+The production [Load Image + Source Info](PhotoLoaderPreview.md) node
+(`PortraitPhotoLoaderPreview`) loads one photo per execution and emits compact
+source information. The `LoadImageCombined` and `LoadImageCombinedV2` IDs
+have been removed. See the linked guide for its color-management controls.
 
 ## Inputs
-- `image_path` – File path to a single image. Leave blank if you want to use folder mode.
-- `folder_path` – Directory to scan for images. Works with recursive or flat structures.
-- `recursive` – Search subfolders when set to `True`.
-- `auto_next` – When `True`, the node advances to the next image each time it executes.
-- `loop` – Restart from the beginning when the folder list is exhausted.
-- `shuffle` – Randomise the order for variety during reviews.
-- `max_batch` – Number of images to load per run. Set to `1` for single-image mode.
 
----
+- `mode`: Single uses the uploaded/selected `image`; Batch reads a folder.
+- `input_dir`: Required in Batch mode. Relative paths resolve under ComfyUI/input.
+- `output_dir`: Passed into source information for later use by the saver.
+- `pattern`: Batch filename glob, such as `*.png`; defaults to `*`.
+- `strip_trailing_numbers`: Remove a trailing `(n)` from the output filename stem.
+- `repeat_last`: In Batch mode, repeat the last selected file instead of advancing.
+- `image`: ComfyUI image selection/upload used in Single mode.
+
+Batch mode filters supported image extensions, sorts filenames, and loops after
+the final file. It loads one image, not a multi-image tensor batch. Batch position
+is in-process state; it is not persisted when ComfyUI restarts.
 
 ## Outputs
-- `image` – Loaded image tensor or batch.
-- `mask` – Optional alpha/mask channel when the file provides one; otherwise emits zeros.
-- `filename` – Name of the file currently loaded.
-- `next_index` – Position of the next image the node will load (useful for sequencing).
 
----
+- `image`: RGB float image tensor.
+- `source_info`: `PORTRAIT_SOURCE_INFO_V2`, containing filename without extension,
+  output directory, and original width/height.
 
-## Where It Fits
+Connect `source_info` to **Save Info from Source** beside Simple Image Saver.
+The reader exposes filename and output directory. Alpha masks are not emitted;
+use a separate mask loader/generator when needed.
 
-Use LoadImageCombined at the front of portrait pipelines when you bounce between single reference frames and whole folders of stills. It’s also handy for QA passes where you want to step through before/after pairs without reconfiguring the graph.
-
----
-
-## Tuning Tips
-
-- Enable `auto_next` with `loop` for unattended slideshows or automated batch processing.
-- Keep `shuffle` off when the order matters (e.g., matching filenames later in the workflow).
-- Set `max_batch` higher than `1` only when downstream nodes can handle true batches; many portrait tools expect single images.
-
----
-
-## Troubleshooting
-
-- **Node repeats the same image** – Confirm `auto_next` is enabled and `max_batch` is `1`. In batch mode it stays on the same set until the next execution.
-- **Images appear in strange order** – Disable `shuffle` and ensure `recursive` is set according to your folder structure.
-- **Mask output is empty** – The source file likely lacks an alpha channel; this is normal. Supply a separate mask if needed.
-
----
-
-Screenshot: `docs/screenshots/load_image_combined.png`
+See [Typed Workflow Configuration](ConfigurationV2.md) for the source-info bus.

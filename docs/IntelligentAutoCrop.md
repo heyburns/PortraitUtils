@@ -1,22 +1,38 @@
-# Intelligent AutoCrop (GPU)
+# Intelligent AutoCrop
 
-Sometimes you have an image with thick, ugly letterboxing (black bars on the top and bottom like a movie) or strange solid color borders left over from an old save format. Getting rid of those manually for hundreds of images is incredibly tedious.
+The production [Intelligent AutoCrop](AutoCropPreview.md) node
+(`PortraitAutoCropPreview`) removes uniform borders before subject framing.
+It consumes an image and Input & Crop Config. The old
+`IntelligentAutoCrop` and `IntelligentAutoCropV2` IDs have been removed.
 
-The **Intelligent AutoCrop** node acts like a smart pair of scissors. It looks at your image, figures out where the real content starts and where the empty borders end, and automatically snips the borders away for you!
+Removing solid black image-hosting borders, including Alamy-style borders, is
+an explicit purpose of this stage. The production node offers a conservative
+policy or literal configured tolerances and a shared safe crop rectangle for
+image batches.
 
-<div align="center"><img src="screenshots/PLACEHOLDER_INTELLIGENT_AUTO_CROP.png" alt="Intelligent AutoCrop" width="500" /></div>
+## Configuration
 
-## Why is it "Intelligent"?
+Settings are in the first, **AUTOCROP · SOLID BORDER REMOVAL** section of the
+configuration node:
 
-Unlike simple croppers that just guess a size, this node actually analyzes the pixels of the image. 
+- `autocrop_strip_bottom_banner`: Detect a dark strip with bright content touching
+  the bottom edge and remove it before border detection.
+- `autocrop_detect_borders`: Enable uniform-border scanning on all four edges.
+- `autocrop_fuzz_tolerance`: Allow color variation in a border.
+- `autocrop_edge_uniformity`: Fraction of a line that must match its border color.
+- `autocrop_pad_px`: Retain this many pixels of a detected border.
 
-- **It ignores logos**: If a movie has black bars but there is a tiny watermark or logo sitting in the black bar, the node is smart enough to ignore the logo and still crop the bar away!
-- **It's lightning fast**: It uses your computer's graphics card (GPU) to do the math, meaning it can process huge batches of images in the blink of an eye.
+Smart Crop and resolution/aspect controls belong to the separate second section
+and are consumed by Smart Photo Prepare, not by this node.
 
-## What do the settings do?
+## Outputs
 
-- **border_color**: You can tell the node exactly what color the border is (like black or white), or set it to `auto` to let the node guess.
-- **tolerance**: If the border isn't perfectly solid black (maybe it's a bit noisy or dark gray), turning this up helps the node grab the messy bits too.
-- **min_crop_size**: Prevents the node from accidentally cropping away the entire image if it gets confused.
+`image`, `trim_left`, `trim_top`, `trim_right`, `trim_bottom`, and `detected`.
+Trim values are source-image pixels. This node does not output a transformed mask;
+generate segmentation from the cropped image or crop existing masks consistently.
 
-Use this node anytime you want to clean up messy framing without touching an image editor!
+Detection analyzes a CPU copy where necessary; the output stays on the input
+tensor's device without image resampling. Border and banner detection remain
+heuristic, so inspect the result when tuning tolerances.
+
+See [Typed Workflow Configuration](ConfigurationV2.md).

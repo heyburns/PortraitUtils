@@ -2,6 +2,7 @@ from __future__ import annotations
 import torch
 import torch.nn.functional as F
 from .image_utils import enforce_image_format
+from .core.white_balance import WhiteBalanceEngine
 
 # ---------------------------
 # sRGB <-> Linear helpers
@@ -43,7 +44,7 @@ def rgb_to_lab(rgb):  # [B,H,W,3] in 0..1 sRGB
     M = _get_matrix("rgb2xyz", _M_RGB2XYZ, rgb.device, rgb.dtype)
     # sRGB -> linear -> XYZ
     lin = srgb_to_linear(rgb)
-    xyz = torch.einsum('bhwc,cd->bhwd', lin, M)
+    xyz = torch.einsum('bhwc,dc->bhwd', lin, M)
     # Normalize by white point
     x = xyz[...,0] / _Xn
     y = xyz[...,1] / _Yn
@@ -79,7 +80,7 @@ def lab_to_rgb(lab):  # [B,H,W,3]
     Z = zr * _Zn
     xyz = torch.stack([X,Y,Z], dim=-1)
     M = _get_matrix("xyz2rgb", _M_XYZ2RGB, lab.device, lab.dtype)
-    lin = torch.einsum('bhwc,cd->bhwd', xyz, M)
+    lin = torch.einsum('bhwc,dc->bhwd', xyz, M)
     srgb = linear_to_srgb(lin).clamp(0,1)
     return srgb
 
@@ -126,7 +127,7 @@ def wb_highlight(img, percentile=95.0):
     eps = 1e-6
     sel = img * mask
     count = mask.sum(dim=(1,2,3), keepdim=True).clamp_min(1.0)
-    mean_sel = sel.sum(dim=(1,2,3), keepdim=True) / count  # [B,1,1,3]
+    mean_sel = sel.sum(dim=(1,2), keepdim=True) / count  # [B,1,1,3]
     target_white = torch.ones_like(mean_sel) * 0.95  # bring selected whites near 95% to avoid clipping
     gains = (target_white / mean_sel).clamp(0.5, 2.0)
     return (img * gains).clamp(0,1)
@@ -181,51 +182,8 @@ class AutoWBColorMatch:
     def run(self, image, reference, method="wb_highlight+reinhard",
             percentile=95.0, strength=1.0, clip_gamut=True,
             force_size=False, target_width=1440, target_height=1080):
-        with torch.no_grad():
-            src = enforce_image_format(image, force_rgb=True)
-            ref = enforce_image_format(reference, force_rgb=True)
-
-            if force_size:
-                th, tw = target_height, target_width
-                src_small = resize_bhwc(src, th, tw)
-                ref_small = resize_bhwc(ref, th, tw)
-            else:
-                src_small, ref_small = src, ref
-
-            # 1) white balance / base correction
-            if method in ("wb_grayworld",):
-                base = wb_grayworld(src_small)
-            elif method in ("wb_highlight", "wb_highlight+reinhard"):
-                base = wb_highlight(src_small, percentile=float(percentile))
-            elif method in ("reinhard_lab","lab_l_only"):
-                base = src_small
-            else:
-                base = src_small
-
-            # 2) color match
-            if method == "reinhard_lab":
-                matched = reinhard_match(base, ref_small, l_only=False)
-            elif method == "lab_l_only":
-                matched = reinhard_match(base, ref_small, l_only=True)
-            elif method == "wb_highlight+reinhard":
-                matched = reinhard_match(base, ref_small, l_only=False)
-            else:
-                matched = base
-
-            # If we resized for stats, reapply the transform back to original resolution
-            if force_size and (src.shape[1]!=matched.shape[1] or src.shape[2]!=matched.shape[2]):
-                matched = resize_bhwc(matched, src.shape[1], src.shape[2])
-
-            # 3) blend strength
-            out = (1 - strength) * src + strength * matched
-            if clip_gamut:
-                out = out.clamp(0,1)
-
-            return (out,)
-
-NODE_CLASS_MAPPINGS = {
-    "AutoWBColorMatch": AutoWBColorMatch,
-}
-NODE_DISPLAY_NAME_MAPPINGS = {
-    "AutoWBColorMatch": "Auto White-Balance + Color Match",
-}
+        # Keep the saved node interface while using the corrected full-resolution engine.
+        return WhiteBalanceEngine().run(
+            image, reference, method, percentile, strength, clip_gamut,
+            force_size, target_width, target_height,
+        )

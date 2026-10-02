@@ -1,46 +1,32 @@
-# StitchByMask
+# Stitch by Mask
 
-`StitchByMask` blends a foreground and background image using a mask with optional feathering and opacity control. It’s the quick way to composite retouched faces, outfit swaps, or background replacements inside ComfyUI.
-
----
+`PortraitStitchPreview` blends two images with a mask and a typed Edit & Composite Config.
+The old unconfigured `StitchByMask` interface has been removed.
 
 ## Inputs
-- `foreground` – Image that should appear wherever the mask is white.
-- `background` – Image that fills in when the mask is black. Use the same resolution as the foreground.
-- `mask` – Greyscale mask controlling the blend. White reveals the foreground, black reveals the background.
-- `invert_mask` – Flip mask interpretation without editing the mask itself.
-- `feather_px` – Apply additional smoothing to the mask edge in pixels.
-- `opacity` – Blend strength from 0.0 (only background) to 1.0 (full foreground).
-- `preserve_metadata` – Pass through metadata from the foreground when `True`; otherwise copy from the background.
 
----
+- `image_a`: Base/background image, retained where the mask is black.
+- `image_b`: Replacement image, selected where the mask is white.
+- `edit_config`: Required `PORTRAIT_EDIT_CONFIG_V2` bundle.
+- `opacity_source`: Use `blend_opacity` or `stitch_opacity` from the bundle.
+- `mask`: Required unless `bypass_mask` is enabled.
+- `invert_mask`: Reverse mask coverage.
+- `bypass_mask`: Blend the whole image using the selected opacity.
+- `feather_radius`: Expand/feather mask coverage in processing pixels.
+- `force_size`: Resize both images and the mask to the target width/height.
+- `target_width`, `target_height`: Used only when force_size is enabled.
+
+With force_size off, the images must share dimensions and the mask must match.
+No metadata input/output is provided by this node.
 
 ## Outputs
-- `image` – Composited result.
-- `mask` – The mask after any feathering or inversion (useful for debugging or saving).
 
----
+- `stitched`: Composited image.
+- `processed_mask`: Mask used for the blend, for inspection/downstream use.
 
-## Where It Fits
+The production node uses the corrected 2.0 compositor: it applies opacity once
+after feathering, returns a standard BHW mask, and handles RGBA safely. The
+`StitchByMask` and `StitchByMaskV2` IDs have been removed.
+See the [replacement details](ReplacementPreviews.md#stitch-by-mask).
 
-Use StitchByMask when weaving together portrait fixes: slipping a cleaned-up face back into the original plate, combining outfit variations, or dropping a new background behind a subject. It also pairs with outpaint padding to smooth transitions.
-
----
-
-## Tuning Tips
-
-- Keep `opacity` just under 1.0 (e.g., 0.95) to allow subtle bleed from the background and avoid hard seams.
-- Apply feathering sparingly; you can always stack another blur if the edge still feels sharp.
-- Invert the mask via `invert_mask` rather than regenerating the mask upstream—fewer steps, same result.
-
----
-
-## Troubleshooting
-
-- **Harsh seam visible** – Increase `feather_px` slightly or ensure the mask resolution matches the images exactly.
-- **Blend looks washed out** – Check `opacity`; if it’s below 1.0, the background will bleed through more strongly.
-- **Wrong area reveals** – Flip `invert_mask` or verify the mask isn’t inverted before it reaches the node.
-
----
-
-Screenshot: `docs/screenshots/stitch_by_mask.png`
+See [Typed Workflow Configuration](ConfigurationV2.md) for the edit bundle.

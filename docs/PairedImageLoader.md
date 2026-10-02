@@ -1,48 +1,23 @@
-# PairedImageLoader
+# Paired Image Loader
 
-`PairedImageLoader` pulls matching source/processed image pairs from aligned folders. It’s ideal for before/after reviews or comparison pipelines where both streams must advance together.
+Production node ID: `PortraitPairedLoaderPreview`. The retired
+`PairedImageLoader` ID is no longer registered. The production loader retries
+failed pairs without advancing and uses per-instance cursors.
+[Details](ReplacementPreviews.md#paired-image-loader).
 
----
+## Actual inputs and outputs
 
-## Inputs
-- `source_folder` – Directory containing the “before” images.
-- `target_folder` – Directory containing the “after” images.
-- `pattern` – Optional filename template (e.g., `{name}_after.png`) to align variations when the names differ.
-- `auto_next` – Step to the next pair on every execution.
-- `loop` – Restart from the top when you reach the end of the folder.
-- `shuffle` – Randomise the order of the pairs.
-- `strict_matching` – When `True`, only emits pairs where both files exist. Disable to allow singletons.
+Inputs are `source_dir`, `output_dir`, `reverse`, and
+`strip_trailing_numbers`. Directories can be absolute or relative to the process
+working directory. Matching is case-insensitive by basename. Different
+extensions can match; natural sorting puts image2 before image10. A trailing
+`(n)` marker is ignored for matching only when requested.
 
----
+Outputs, in order: **output_image**, **source_image**, **filename** (the actual
+source stem without its extension). Each execution advances one pair and wraps;
+reverse steps backward. There is no pattern template, shuffle, singleton output,
+auto-next/loop switch, or index socket; previous documentation claiming those
+features was inaccurate.
 
-## Outputs
-- `source_image` – The “before” image tensor.
-- `target_image` – The matching “after” image tensor.
-- `source_filename`, `target_filename` – Filenames currently loaded.
-- `index` – Position in the list for logging or syncing with other nodes.
-
----
-
-## Where It Fits
-
-Use PairedImageLoader for A/B pipeline QA, training-data spot checks, or client review decks where each processed shot should sit next to its original capture.
-
----
-
-## Tuning Tips
-
-- Keep `strict_matching` enabled during quality checks so missing files are obvious.
-- Combine `auto_next` with `ComparisonGate` and your preferred viewer for smooth slideshow-style reviews.
-- Use the `pattern` field to translate naming schemes, such as turning `portrait.jpg` into `portrait_graded.png`.
-
----
-
-## Troubleshooting
-
-- **Pairs go out of sync** – Double-check folder naming and the `pattern` format. The node advances both sides together when matches are found.
-- **Only one image appears** – If strict matching is on, missing companions stop the pair. Either add the file or disable strict mode to let singletons through.
-- **Order unexpected** – Toggle `shuffle` off and ensure the folders list files in the same sequence.
-
----
-
-Screenshot: `docs/screenshots/portraitutils_paired_image_loader.png`
+The cursor commits only after both files decode. Decoding uses the
+color/precision-aware Photo Loader engine.

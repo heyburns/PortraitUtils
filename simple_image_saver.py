@@ -13,6 +13,8 @@ from PIL.PngImagePlugin import PngInfo
 import folder_paths
 from comfy.cli_args import args
 
+from .core.export import ExportEnvironment, PhotoExportEngine
+
 
 JPEG_COMMENT_MAX_BYTES = 65500  # Conservative buffer below 64 KiB JPEG comment cap.
 INVALID_FILENAME_CHARS = '<>:"/\\|?*'
@@ -170,142 +172,15 @@ class SimpleImageSaver:
         prompt: Optional[Dict[str, Any]] = None,
         extra_pnginfo: Optional[Dict[str, Any]] = None,
     ):
-        if images is None:
-            return {"ui": {"images": []}}
-
-        if isinstance(images, (list, tuple)) and len(images) == 0:
-            return {"ui": {"images": []}}
-
-        if not isinstance(images, torch.Tensor):
-            raise TypeError("Expected `images` to be a torch.Tensor or empty input.")
-
-        if images.numel() == 0:
-            return {"ui": {"images": []}}
-
-        if images.ndim == 3:
-            images = images.unsqueeze(0)
-        elif images.ndim != 4:
-            raise ValueError("Expected image tensor with shape [batch, height, width, channels].")
-
-        if images.shape[0] == 0:
-            return {"ui": {"images": []}}
-
-        resolved_dir = _resolve_output_directory(output_path)
-        os.makedirs(resolved_dir, exist_ok=True)
-
-        base_name = _sanitize_name_component(filename)
-        suffix_component = _sanitize_name_component(suffix, allow_empty=True)
-
-        fmt = _coerce_str(file_format).strip().upper()
-        if fmt not in {"PNG", "JPG"}:
-            raise ValueError("Format must be either 'PNG' or 'JPG'.")
-
-        # Clamp quality and warn loudly when a caller passes an out-of-range value via
-        # the API (the widget schema already enforces [0, 100] from the UI).
-        clamped_quality = int(max(0, min(100, jpeg_quality)))
-        if clamped_quality != int(jpeg_quality):
-            logging.warning(
-                "SimpleImageSaver: jpeg_quality %d is out of range [0, 100]; clamped to %d.",
-                jpeg_quality,
-                clamped_quality,
-            )
-        jpeg_quality = clamped_quality
-
-        should_embed_metadata = bool(include_metadata)
-
-        batch_count = images.shape[0]
-        results = []
-        base_output = folder_paths.get_output_directory()
-        base_output_abs = os.path.abspath(base_output)
-
-        for index in range(batch_count):
-            tensor = images[index]
-            if tensor.ndim != 3:
-                raise ValueError("Each image tensor must have shape [height, width, channels].")
-            array = tensor.clamp(0, 1).cpu().numpy()
-            array = np.clip(array * 255.0 + 0.5, 0, 255).astype(np.uint8)
-
-            # Image.fromarray is inside the try block so that if it raises, `image` is
-            # never unbound and the finally clause never produces a secondary NameError.
-            image: Optional[Image.Image] = None
-            try:
-                image = Image.fromarray(array)
-
-                name_parts = [base_name]
-                if suffix_component:
-                    name_parts.append(suffix_component)
-                if batch_count > 1:
-                    name_parts.append(f"{index:04d}")
-                final_name = "-".join(name_parts)
-                extension = ".png" if fmt == "PNG" else ".jpg"
-                final_filename = f"{final_name}{extension}"
-
-                if unique_filenames:
-                    # Atomically claim a filename slot using O_CREAT | O_EXCL.  This
-                    # eliminates the TOCTOU race that exists between os.path.exists()
-                    # and a subsequent open/write in a multi-process environment.
-                    counter = 1
-                    while True:
-                        file_path = os.path.join(resolved_dir, final_filename)
-                        try:
-                            fd = os.open(file_path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o644)
-                            os.close(fd)
-                            break  # Slot claimed; PIL will overwrite the empty placeholder.
-                        except FileExistsError:
-                            final_filename = f"{final_name}-{counter:04d}{extension}"
-                            counter += 1
-                else:
-                    file_path = os.path.join(resolved_dir, final_filename)
-
-                if fmt == "PNG":
-                    metadata = _encode_png_metadata(
-                        prompt if should_embed_metadata else None,
-                        extra_pnginfo if should_embed_metadata else None,
-                    )
-                    image.save(file_path, pnginfo=metadata, compress_level=4)
-                else:
-                    comment = _encode_jpeg_comment(
-                        prompt if should_embed_metadata else None,
-                        extra_pnginfo if should_embed_metadata else None,
-                    )
-                    _save_jpeg(image, file_path, jpeg_quality, comment)
-
-                rel_sub = self._relative_subfolder(resolved_dir, base_output_abs)
-
-                if rel_sub == "" and resolved_dir != base_output_abs:
-                    # The real file has been written to an absolute path outside the
-                    # ComfyUI output tree.  Write a lightweight proxy to the temp dir
-                    # so the UI preview widget has something to display.
-                    temp_dir = folder_paths.get_temp_directory()
-                    temp_name = (
-                        f"proxy_{''.join(random.choices(string.ascii_uppercase + string.digits, k=8))}{extension}"
-                    )
-                    temp_path = os.path.join(temp_dir, temp_name)
-
-                    if fmt == "PNG":
-                        image.save(temp_path, compress_level=1)
-                    else:
-                        # Use the same quality as the real save — not a hard-coded value.
-                        _save_jpeg(image, temp_path, jpeg_quality, None)
-
-                    results.append({
-                        "filename": temp_name,
-                        "subfolder": "",
-                        "type": "temp",
-                    })
-                else:
-                    results.append(
-                        {
-                            "filename": final_filename,
-                            "subfolder": rel_sub,
-                            "type": "output",
-                        }
-                    )
-            finally:
-                if image is not None:
-                    image.close()
-
-        return {"ui": {"images": results}}
+        environment = ExportEnvironment(
+            folder_paths.get_output_directory(),
+            folder_paths.get_temp_directory(),
+            args.disable_metadata,
+        )
+        return PhotoExportEngine(environment).save(
+            images, output_path, filename, suffix, file_format, jpeg_quality,
+            include_metadata, unique_filenames, prompt, extra_pnginfo,
+        )
 
     @staticmethod
     def _relative_subfolder(target_dir: str, base_dir: str) -> str:
@@ -318,12 +193,3 @@ class SimpleImageSaver:
             return ""
         rel = os.path.relpath(target_abs, base_dir)
         return "" if rel == "." else rel.replace("\\", "/")
-
-
-NODE_CLASS_MAPPINGS = {
-    "SimpleImageSaver": SimpleImageSaver,
-}
-
-NODE_DISPLAY_NAME_MAPPINGS = {
-    "SimpleImageSaver": "Simple Image Saver",
-}

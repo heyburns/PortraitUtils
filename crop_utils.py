@@ -1,38 +1,6 @@
-import torch
-import torch.nn.functional as _iutils_F
+"""Exact pixel-margin crops for IMAGE and standard BHW MASK tensors."""
 
-_iutils_torch = torch
-
-
-from .image_utils import enforce_image_format
-
-
-def _crop_bhwc(img: torch.Tensor, left: int, top: int, right: int, bottom: int, multiple: int) -> torch.Tensor:
-    B, H, W, C = img.shape
-
-    # Clamp margins to safe range
-    left = max(0, min(left, W - 1))
-    right = max(0, min(right, W - 1))
-    top = max(0, min(top, H - 1))
-    bottom = max(0, min(bottom, H - 1))
-
-    # Compute crop box
-    x0 = left
-    y0 = top
-    x1 = max(x0 + 1, W - right)  # ensure at least 1 px
-    y1 = max(y0 + 1, H - bottom)
-
-    # Optionally snap to a multiple (e.g., 64)
-    if multiple > 1:
-        # Round down width/height to a multiple, keeping the top-left fixed
-        new_w = ((x1 - x0) // multiple) * multiple
-        new_h = ((y1 - y0) // multiple) * multiple
-        new_w = max(1, new_w)
-        new_h = max(1, new_h)
-        x1 = min(W, x0 + new_w)
-        y1 = min(H, y0 + new_h)
-
-    return img[:, y0:y1, x0:x1, :]
+from .core.margins import ImageMarginEngine, MaskMarginEngine
 
 
 class CropImageByMargins:
@@ -56,10 +24,9 @@ class CropImageByMargins:
     CATEGORY = "PortraitUtils/Transform"
 
     def crop(self, image, left_px, top_px, right_px, bottom_px, snap_multiple=1):
-        x = enforce_image_format(image)
-        y = _crop_bhwc(x, left_px, top_px, right_px, bottom_px, snap_multiple)
-        return (y.clamp(0.0, 1.0),)
-
+        return ImageMarginEngine().crop(
+            image, left_px, top_px, right_px, bottom_px, snap_multiple,
+        )
 
 class CropMaskByMargins:
     """Same as above but for MASK input and output (single-channel)."""
@@ -82,32 +49,6 @@ class CropMaskByMargins:
     CATEGORY = "PortraitUtils/Transform"
 
     def crop(self, mask, left_px, top_px, right_px, bottom_px, snap_multiple=1):
-        # Normalize mask to [B,H,W,1]
-        m = mask
-        if m.dim() == 2:  # [H,W]
-            m = m.unsqueeze(0).unsqueeze(-1)
-        elif m.dim() == 3:
-            if m.shape[0] == 1:  # [1,H,W] -> [1,H,W,1]
-                m = m.permute(1, 2, 0).unsqueeze(0)
-            elif m.shape[-1] == 1:  # [H,W,1] -> [1,H,W,1]
-                m = m.unsqueeze(0)
-            else:
-                raise ValueError(f"Unexpected MASK shape {tuple(m.shape)}")
-        elif m.dim() == 4 and m.shape[-1] == 1:
-            pass
-        else:
-            raise ValueError(f"Unexpected MASK shape {tuple(m.shape)}")
-
-        y = _crop_bhwc(m, left_px, top_px, right_px, bottom_px, snap_multiple)
-        return (y.clamp(0.0, 1.0),)
-
-
-NODE_CLASS_MAPPINGS = {
-    "CropImageByMargins": CropImageByMargins,
-    "CropMaskByMargins": CropMaskByMargins,
-}
-
-NODE_DISPLAY_NAME_MAPPINGS = {
-    "CropImageByMargins": "Crop by Margins (Image)",
-    "CropMaskByMargins": "Crop by Margins (Mask)",
-}
+        return MaskMarginEngine().crop(
+            mask, left_px, top_px, right_px, bottom_px, snap_multiple,
+        )

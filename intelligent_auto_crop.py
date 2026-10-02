@@ -66,6 +66,7 @@ def _scan_edge(lines: torch.Tensor, fuzz_tol: float, edge_unif: float) -> int:
     return trim
 
 class IntelligentAutoCrop:
+    """Internal border-crop implementation used by IntelligentAutoCropV2."""
     @classmethod
     def INPUT_TYPES(cls):
         return {
@@ -182,11 +183,3 @@ class IntelligentAutoCrop:
             final_out = out_images[0].unsqueeze(0)
             
         return (final_out.clamp(0.0, 1.0), int(l_total), int(t_total), int(r_total), int(b_total), detected_any)
-
-NODE_CLASS_MAPPINGS = {
-    "IntelligentAutoCrop": IntelligentAutoCrop,
-}
-
-NODE_DISPLAY_NAME_MAPPINGS = {
-    "IntelligentAutoCrop": "Intelligent AutoCrop (GPU)",
-}

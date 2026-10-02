@@ -1,54 +1,15 @@
-# Crop By Margins Suite
+# Crop by Margins: Image / Mask
 
-`CropImageByMargins` and `CropMaskByMargins` trim uniform margins from RGB images and their matching masks. Use them together to keep crops aligned across colour and alpha channels.
+Production IDs: `PortraitCropImageMarginsPreview` and
+`PortraitCropMaskMarginsPreview`. The old IDs are removed. Both use the 2.0
+margin engine. [Details](ReplacementPreviews.md#crop-by-margins-image-and-mask).
 
----
+Both nodes have the corresponding `image` or `mask` input and four nonnegative
+integer widgets: `left_px`, `top_px`, `right_px`, and `bottom_px`. They crop inward,
+not outward. `snap_multiple` rounds the remaining width and height down to a
+multiple, keeping the top-left fixed. There are no fill-color, negative-padding,
+or enforce-even controls; previous documentation describing them was inaccurate.
 
-## CropImageByMargins
-
-### Inputs
-- `image` – The RGB image to crop.
-- `left`, `right`, `top`, `bottom` – Margin sizes in pixels. Positive numbers trim inward; negative values add padding.
-- `enforce_even` – Force even output dimensions for latent-friendly pipelines.
-- `fill_color` – RGB colour used when padding outward (defaults to black).
-
-### Output
-- `image` – Cropped or padded image.
-
----
-
-## CropMaskByMargins
-
-### Inputs
-- `mask` – The matching mask tensor.
-- `left`, `right`, `top`, `bottom` – Use the same values as the image node for perfect alignment.
-- `enforce_even` – Keep mask dimensions even to match the image branch.
-
-### Output
-- `mask` – Cropped or padded mask.
-
----
-
-## Where It Fits
-
-Use the suite when you need consistent framing across multiple outputs—portrait plus silhouette, subject plus matte, etc. It also helps when you want to clear unwanted edges while keeping a predictable amount of breathing room on each side.
-
----
-
-## Tuning Tips
-
-- Mirror the same margin values across both nodes so the subject stays aligned.
-- Set `enforce_even` to `True` when downstream models require even resolutions; leave it off for pixel-perfect edits.
-- Choose a neutral `fill_color` (e.g., mid-grey) when you plan to blend the padded area later.
-
----
-
-## Troubleshooting
-
-- **Mask no longer lines up** – Double-check that both nodes share identical margin values and ordering.
-- **Unexpected border colour** – Adjust `fill_color` when padding outward; the default is pure black.
-- **Output still has odd dimensions** – Confirm `enforce_even` is enabled if your workflow expects even sizes.
-
----
-
-Screenshot: `docs/screenshots/crop_image_by_margins.png`
+Each has one output of the corresponding IMAGE/MASK type. Both use validated
+geometry, preserve original pixels/dtype, support standard batched BHW masks,
+and explain impossible crops rather than silently changing them.

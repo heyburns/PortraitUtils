@@ -1,11 +1,18 @@
-# Core tensor/math runtime for all nodes
-torch>=2.0
+# ComfyUI supplies the hardware-specific PyTorch build; do not reinstall it here.
+# This matches ComfyUI's NumPy minimum and covers direct array imports.
+numpy>=1.25.0
 
-# Array utilities used by cropping, loaders, and colour tools
-numpy>=1.24
+# Image I/O and ICC conversion use Pillow's ImageCms.Intent API (Pillow 9.1+).
+Pillow>=9.1.0
 
-# Image encode/decode helpers (PIL)
-Pillow>=10.0
+# cv2 is used by border detection, scan straightening, compositing, and PNG16 I/O.
+# OpenCV wheel variants share the same cv2 namespace: install only one variant.
+# If another variant is already installed, resolve that environment conflict.
+# OpenCV 4.10.0.84+ has NumPy 2-compatible wheels.
+opencv-python-headless>=4.10.0.84
 
-# OpenCV for auto straightening
-opencv-python-headless>=4.5
+# Lossless, orientation-safe 16-bit TIFF decoding.
+tifffile
+
+# Optional: imagecodecs is needed for some compressed 16-bit TIFFs that OpenCV
+# cannot decode. The loader gives an actionable error when it is needed.

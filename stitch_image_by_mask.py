@@ -238,12 +238,3 @@ class StitchByMask:
         mask_out = m_safe[..., :1].clamp(0.0, 1.0)
         del m_safe
         return (out.clamp(0.0, 1.0), mask_out)
-
-
-NODE_CLASS_MAPPINGS = {
-    "StitchByMask": StitchByMask,
-}
-
-NODE_DISPLAY_NAME_MAPPINGS = {
-    "StitchByMask": "Stitch Two Images by Mask",
-}

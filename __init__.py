@@ -1,123 +1,50 @@
+"""Register current PortraitUtils nodes without retired legacy interfaces.
+
+Processing implementations used by configured nodes remain internal; their
+old node IDs are deliberately not exported to ComfyUI.
 """
-Custom node registry that aggregates the standalone node modules in this package.
 
-Intentionally excludes the legacy `ImageUtils.py` bundle; only the extracted
-modules are imported and registered here.
-"""
-
-from .auto_adjust import (
-    NODE_CLASS_MAPPINGS as AUTO_ADJUST_CLASS_MAP,
-    NODE_DISPLAY_NAME_MAPPINGS as AUTO_ADJUST_DISPLAY_MAP,
+from . import (
+    auto_crop_preview,
+    comparison_gate,
+    crop_margins_preview,
+    filename_append_suffix,
+    paired_loader_preview,
+    photo_loader_preview,
+    image_saver_preview,
+    scanned_photo_preview,
+    stitch_preview,
+    smart_photo_prepare,
+    white_balance_preview,
+    workflow_config_v2,
+    preparation_nodes_v2,
+    photo_panels,
 )
-from .outpaint_config import (
-    NODE_CLASS_MAPPINGS as OUTPAINT_CLASS_MAP,
-    NODE_DISPLAY_NAME_MAPPINGS as OUTPAINT_DISPLAY_MAP,
-)
-
-from .stitch_image_by_mask import (
-    NODE_CLASS_MAPPINGS as STITCH_BY_MASK_CLASS_MAP,
-    NODE_DISPLAY_NAME_MAPPINGS as STITCH_BY_MASK_DISPLAY_MAP,
-)
-from .crop_utils import (
-    NODE_CLASS_MAPPINGS as CROP_UTILS_CLASS_MAP,
-    NODE_DISPLAY_NAME_MAPPINGS as CROP_UTILS_DISPLAY_MAP,
-)
-from .intelligent_auto_crop import (
-    NODE_CLASS_MAPPINGS as INTELLIGENT_AUTO_CROP_CLASS_MAP,
-    NODE_DISPLAY_NAME_MAPPINGS as INTELLIGENT_AUTO_CROP_DISPLAY_MAP,
-)
-
-from .filename_append_suffix import (
-    NODE_CLASS_MAPPINGS as FILENAME_APPEND_SUFFIX_CLASS_MAP,
-    NODE_DISPLAY_NAME_MAPPINGS as FILENAME_APPEND_SUFFIX_DISPLAY_MAP,
-)
-from .auto_color_match import (
-    NODE_CLASS_MAPPINGS as AUTO_COLOR_MATCH_CLASS_MAP,
-    NODE_DISPLAY_NAME_MAPPINGS as AUTO_COLOR_MATCH_DISPLAY_MAP,
-)
-
-from .flux_resolution_prepare import (
-    NODE_CLASS_MAPPINGS as FLUX_PREP_CLASS_MAP,
-    NODE_DISPLAY_NAME_MAPPINGS as FLUX_PREP_DISPLAY_MAP,
-)
-from .workflow_config import (
-    NODE_CLASS_MAPPINGS as WORKFLOW_CONFIG_CLASS_MAP,
-    NODE_DISPLAY_NAME_MAPPINGS as WORKFLOW_CONFIG_DISPLAY_MAP,
-)
-from .smart_crop import (
-    NODE_CLASS_MAPPINGS as SMART_CROP_CLASS_MAP,
-    NODE_DISPLAY_NAME_MAPPINGS as SMART_CROP_DISPLAY_MAP,
-)
-from .paired_image_loader import (
-    NODE_CLASS_MAPPINGS as PAIRED_LOADER_CLASS_MAP,
-    NODE_DISPLAY_NAME_MAPPINGS as PAIRED_LOADER_DISPLAY_MAP,
-)
-from .load_image_combined import LoadImageCombined
-from .comparison_gate import (
-    NODE_CLASS_MAPPINGS as COMPARISON_GATE_CLASS_MAP,
-    NODE_DISPLAY_NAME_MAPPINGS as COMPARISON_GATE_DISPLAY_MAP,
-)
-from .simple_image_saver import (
-    NODE_CLASS_MAPPINGS as SIMPLE_IMAGE_SAVER_CLASS_MAP,
-    NODE_DISPLAY_NAME_MAPPINGS as SIMPLE_IMAGE_SAVER_DISPLAY_MAP,
-)
-
-from .auto_straighten import (
-    NODE_CLASS_MAPPINGS as AUTO_STRAIGHTEN_CLASS_MAP,
-    NODE_DISPLAY_NAME_MAPPINGS as AUTO_STRAIGHTEN_DISPLAY_MAP,
-)
-
 
 
 NODE_CLASS_MAPPINGS = {}
 NODE_DISPLAY_NAME_MAPPINGS = {}
 
-# Merge the mappings exposed by the extracted modules.
-NODE_CLASS_MAPPINGS.update(AUTO_ADJUST_CLASS_MAP)
-NODE_CLASS_MAPPINGS.update(OUTPAINT_CLASS_MAP)
+for _module in (
+    auto_crop_preview,
+    comparison_gate,
+    crop_margins_preview,
+    filename_append_suffix,
+    paired_loader_preview,
+    photo_loader_preview,
+    image_saver_preview,
+    scanned_photo_preview,
+    stitch_preview,
+    smart_photo_prepare,
+    white_balance_preview,
+    workflow_config_v2,
+    preparation_nodes_v2,
+    photo_panels,
+):
+    _duplicates = NODE_CLASS_MAPPINGS.keys() & _module.NODE_CLASS_MAPPINGS.keys()
+    if _duplicates:
+        raise RuntimeError(f"Duplicate PortraitUtils node IDs: {sorted(_duplicates)}")
+    NODE_CLASS_MAPPINGS.update(_module.NODE_CLASS_MAPPINGS)
+    NODE_DISPLAY_NAME_MAPPINGS.update(_module.NODE_DISPLAY_NAME_MAPPINGS)
 
-NODE_CLASS_MAPPINGS.update(STITCH_BY_MASK_CLASS_MAP)
-NODE_CLASS_MAPPINGS.update(CROP_UTILS_CLASS_MAP)
-NODE_CLASS_MAPPINGS.update(INTELLIGENT_AUTO_CROP_CLASS_MAP)
-
-NODE_CLASS_MAPPINGS.update(FILENAME_APPEND_SUFFIX_CLASS_MAP)
-NODE_CLASS_MAPPINGS.update(AUTO_COLOR_MATCH_CLASS_MAP)
-
-NODE_CLASS_MAPPINGS.update(FLUX_PREP_CLASS_MAP)
-NODE_CLASS_MAPPINGS.update(WORKFLOW_CONFIG_CLASS_MAP)
-NODE_CLASS_MAPPINGS.update(SMART_CROP_CLASS_MAP)
-NODE_CLASS_MAPPINGS.update(PAIRED_LOADER_CLASS_MAP)
-NODE_CLASS_MAPPINGS.update(COMPARISON_GATE_CLASS_MAP)
-NODE_CLASS_MAPPINGS.update(SIMPLE_IMAGE_SAVER_CLASS_MAP)
-
-NODE_CLASS_MAPPINGS.update(AUTO_STRAIGHTEN_CLASS_MAP)
-
-
-NODE_DISPLAY_NAME_MAPPINGS.update(AUTO_ADJUST_DISPLAY_MAP)
-NODE_DISPLAY_NAME_MAPPINGS.update(OUTPAINT_DISPLAY_MAP)
-
-NODE_DISPLAY_NAME_MAPPINGS.update(STITCH_BY_MASK_DISPLAY_MAP)
-NODE_DISPLAY_NAME_MAPPINGS.update(CROP_UTILS_DISPLAY_MAP)
-NODE_DISPLAY_NAME_MAPPINGS.update(INTELLIGENT_AUTO_CROP_DISPLAY_MAP)
-
-NODE_DISPLAY_NAME_MAPPINGS.update(FILENAME_APPEND_SUFFIX_DISPLAY_MAP)
-NODE_DISPLAY_NAME_MAPPINGS.update(AUTO_COLOR_MATCH_DISPLAY_MAP)
-
-NODE_DISPLAY_NAME_MAPPINGS.update(FLUX_PREP_DISPLAY_MAP)
-NODE_DISPLAY_NAME_MAPPINGS.update(WORKFLOW_CONFIG_DISPLAY_MAP)
-NODE_DISPLAY_NAME_MAPPINGS.update(SMART_CROP_DISPLAY_MAP)
-NODE_DISPLAY_NAME_MAPPINGS.update(PAIRED_LOADER_DISPLAY_MAP)
-NODE_DISPLAY_NAME_MAPPINGS.update(COMPARISON_GATE_DISPLAY_MAP)
-NODE_DISPLAY_NAME_MAPPINGS.update(SIMPLE_IMAGE_SAVER_DISPLAY_MAP)
-
-NODE_DISPLAY_NAME_MAPPINGS.update(AUTO_STRAIGHTEN_DISPLAY_MAP)
-
-
-# Register the load-image node which does not expose pre-built mappings.
-NODE_CLASS_MAPPINGS["LoadImageCombined"] = LoadImageCombined
-NODE_DISPLAY_NAME_MAPPINGS["LoadImageCombined"] = "Load Image (Combined)"
-
-__all__ = [
-    "NODE_CLASS_MAPPINGS",
-    "NODE_DISPLAY_NAME_MAPPINGS",
-]
+__all__ = ["NODE_CLASS_MAPPINGS", "NODE_DISPLAY_NAME_MAPPINGS"]

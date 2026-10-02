@@ -1,102 +1,9 @@
 import torch
 
 
-class OutpaintConfigNode:
-    """
-    Control panel for outpainting preferences (no image).
-    Outputs raw settings for Set/Get.
-    """
-
-    @classmethod
-    def INPUT_TYPES(cls):
-        return {
-            "required": {
-                "mode": (["Percent", "Pixels"], {"default": "Percent"}),
-                "gravity": (
-                    [
-                        "center",
-                        "left",
-                        "right",
-                        "top",
-                        "bottom",
-                        "top left",
-                        "top right",
-                        "bottom right",
-                        "bottom left",
-                    ],
-                    {"default": "center"},
-                ),
-                "horizontal_percent": (
-                    "FLOAT",
-                    {"default": 20.0, "min": 0.0, "max": 10000.0, "step": 0.1},
-                ),
-                "vertical_percent": (
-                    "FLOAT",
-                    {"default": 10.0, "min": 0.0, "max": 10000.0, "step": 0.1},
-                ),
-                "left_px": ("INT", {"default": 0, "min": 0, "max": 1000000}),
-                "right_px": ("INT", {"default": 0, "min": 0, "max": 1000000}),
-                "top_px": ("INT", {"default": 0, "min": 0, "max": 1000000}),
-                "bottom_px": ("INT", {"default": 0, "min": 0, "max": 1000000}),
-            }
-        }
-
-    RETURN_TYPES = (
-        "STRING",
-        "STRING",
-        "FLOAT",
-        "FLOAT",
-        "INT",
-        "INT",
-        "INT",
-        "INT",
-    )
-    RETURN_NAMES = (
-        "mode",
-        "gravity",
-        "horizontal_percent",
-        "vertical_percent",
-        "left_px",
-        "right_px",
-        "top_px",
-        "bottom_px",
-    )
-    FUNCTION = "apply"
-    CATEGORY = "PortraitUtils/Config"
-
-    def apply(
-        self,
-        mode,
-        gravity,
-        horizontal_percent,
-        vertical_percent,
-        left_px,
-        right_px,
-        top_px,
-        bottom_px,
-    ):
-
-        horizontal_percent = max(0.0, float(horizontal_percent))
-        vertical_percent = max(0.0, float(vertical_percent))
-        left_px = max(0, int(left_px))
-        right_px = max(0, int(right_px))
-        top_px = max(0, int(top_px))
-        bottom_px = max(0, int(bottom_px))
-
-        return (
-            mode,
-            gravity,
-            horizontal_percent,
-            vertical_percent,
-            left_px,
-            right_px,
-            top_px,
-            bottom_px,
-        )
-
-
 class OutpaintPaddingComputeNode:
     """
+    Internal implementation for OutpaintPaddingComputeV2 (not registered).
     Compute absolute pixel paddings (left, top, right, bottom) for outpainting.
     - Pixels mode: gravity ignored; enforce even final size.
     - Percent mode: compute by % + gravity (including corners); enforce even final size.
@@ -223,14 +130,3 @@ class OutpaintPaddingComputeNode:
             max(0, int(right)),
             max(0, int(bottom)),
         )
-
-
-NODE_CLASS_MAPPINGS = {
-    "OutpaintConfigNode": OutpaintConfigNode,
-    "OutpaintPaddingComputeNode": OutpaintPaddingComputeNode,
-}
-
-NODE_DISPLAY_NAME_MAPPINGS = {
-    "OutpaintConfigNode": "Outpaint Config",
-    "OutpaintPaddingComputeNode": "Outpaint Padding Compute",
-}

@@ -2,11 +2,13 @@
 import os
 import re
 import glob
-import hashlib
 import numpy as np
 from PIL import Image, ImageOps
 import torch
 import folder_paths
+
+from .core.photo_io import _fingerprint
+from .core.state import TransactionalCursor
 
 # ===========================
 # Shared utils / constants 
@@ -59,56 +61,15 @@ def _basename_no_ext(filename: str, strip_numbers=False) -> str:
         base = re.sub(r"\(\d+\)$", "", base).strip()
     return base
 
-# ----------------------------------------------------------------
-# Batch listing index tracking (per-listing, in-process persistence)
-# Keyed by (base, listing key), advances on each call unless 
-# repeat_last=True; not persisted to disk.
-# ----------------------------------------------------------------
-_INDEX_STATE = {}  # { base_dir: { listing_key: last_used_index } }
-_MAX_INDEX_DIRS = 128  # cap to prevent unbounded growth in long-running sessions
-
-
-def _evict_index_state() -> None:
-    """FIFO-evict oldest directories from _INDEX_STATE when the cap is reached."""
-    while len(_INDEX_STATE) >= _MAX_INDEX_DIRS:
-        _INDEX_STATE.pop(next(iter(_INDEX_STATE)))
-
-def _listing_key(files_sorted, strip_numbers, pattern):
-    """
-    Stable identifier for this specific listing. Combine directory path,
-    pattern, strip flag, and file names to disambiguate.
-    """
-    if not files_sorted:
-        return "empty"
-    dir_path = os.path.dirname(files_sorted[0])
-    parts = [os.path.basename(f).lower() for f in files_sorted]
-    seed = f"{os.path.abspath(dir_path).lower()}|pat={pattern}|strip={bool(strip_numbers)}|" + "|".join(parts)
-    return hashlib.sha256(seed.encode("utf-8")).hexdigest()
-
-def _peek_last_index(base_dir, key):
-    return int(_INDEX_STATE.get(base_dir, {}).get(key, -1))
-
-def _choose_index_and_update(base_dir, key, n, repeat_last):
-    last = _peek_last_index(base_dir, key)
-    if last < 0:
-        next_idx = 0
-    else:
-        next_idx = min(last, n - 1) if repeat_last else ((last + 1) % n)
-    _evict_index_state()
-    d = _INDEX_STATE.get(base_dir)
-    if d is None:
-        d = {}
-        _INDEX_STATE[base_dir] = d
-    d[key] = next_idx
-    return next_idx
-
 # ============================================================
 # Node: Load Image (Combined)
 # ============================================================
 
 class LoadImageCombined:
+    """Internal loading implementation inherited by LoadImageCombinedV2."""
+
     def __init__(self):
-        pass
+        self._cursor = TransactionalCursor()
 
     @classmethod
     def INPUT_TYPES(s):
@@ -199,16 +160,15 @@ class LoadImageCombined:
         if not files_sorted:
             raise ValueError(f"No images found in '{base}' with pattern '{pat}'")
 
-        key = _listing_key(files_sorted, strip_numbers, pat)
-        n = len(files_sorted)
-        use_idx = _choose_index_and_update(base, key, n, repeat_last)
-
-        path = files_sorted[use_idx]
-        filename = os.path.basename(path)
-        filename_no_ext = _basename_no_ext(filename, strip_numbers)
-        arr = self._load_pil(path)
-        img_t = torch.from_numpy(arr)[None,]
-        h, w = arr.shape[0], arr.shape[1]
+        key = (os.path.abspath(base), pat, bool(strip_numbers))
+        with self._cursor.lock:
+            path = self._cursor.select(key, files_sorted, repeat=repeat_last)
+            # A failed decode leaves the cursor unchanged, so retry gets the same photo.
+            arr = self._load_pil(path)
+            filename_no_ext = _basename_no_ext(os.path.basename(path), strip_numbers)
+            img_t = torch.from_numpy(arr)[None,]
+            h, w = arr.shape[:2]
+            self._cursor.commit(key, path)
         return img_t, filename_no_ext, int(w), int(h)
 
     def load_image(self, mode, input_dir, output_dir, pattern, strip_trailing_numbers, repeat_last, image):
@@ -228,56 +188,13 @@ class LoadImageCombined:
 
     @classmethod
     def IS_CHANGED(s, mode, input_dir, output_dir, pattern, strip_trailing_numbers, repeat_last, image):
-        input_dir = _coerce_str(input_dir).strip()
-        output_dir = _coerce_str(output_dir).strip()
-        pattern = _coerce_pattern(pattern)
-        if str(mode) != "Batch":
-            image_path = folder_paths.get_annotated_filepath(image)
-            m = hashlib.sha256()
-            # Hash file bytes to detect actual content changes; also include strip flag
-            try:
-                st = os.stat(image_path)
-                m.update(os.path.abspath(image_path).lower().encode("utf-8"))
-                m.update(str(st.st_size).encode("utf-8"))
-                m.update(str(int(st.st_mtime)).encode("utf-8"))
-            except Exception:
-                m.update(b"ERROR:cannot_stat_single_image")
-            m.update(f"|strip={bool(strip_trailing_numbers)}|".encode("utf-8"))
-            m.update(f"|output_dir={str(output_dir)}|".encode("utf-8"))
-            return m.digest().hex()
-
-        # Batch mode hashing: reflect directory listing, file sizes/mtimes, last-used index, strip flag, and pattern.
-        if not input_dir:
-            m = hashlib.sha256()
-            m.update(b"ERROR:no_input_dir_for_batch")
-            return m.digest().hex()
-
-        base = _resolve_input_dir(input_dir)
-        pat = pattern if pattern else "*"
-        candidates = [
-            f for f in glob.glob(os.path.join(base, pat))
-            if os.path.isfile(f) and os.path.splitext(f)[1].lower() in _VALID_EXTS
-        ]
-        files_sorted = sorted(candidates, key=lambda s: s.lower())
-
-        m = hashlib.sha256()
-        for fp in files_sorted:
-            try:
-                st = os.stat(fp)
-                m.update(os.path.abspath(fp).lower().encode("utf-8"))
-                m.update(str(st.st_size).encode("utf-8"))
-                m.update(str(int(st.st_mtime)).encode("utf-8"))
-            except Exception:
-                m.update(os.path.abspath(fp).lower().encode("utf-8"))
-            m.update(b"\n")
-
-        key = _listing_key(files_sorted, strip_trailing_numbers, pat)
-        last_used = _peek_last_index(base, key)
-        m.update(f"|last_used={last_used}|".encode("utf-8"))
-        m.update(f"|strip={bool(strip_trailing_numbers)}|".encode("utf-8"))
-        m.update(f"|pattern={pat}|".encode("utf-8"))
-        m.update(f"|output_dir={str(output_dir)}|".encode("utf-8"))
-        return m.digest().hex()
+        if str(mode) == "Batch":
+            # The cursor is per node instance, so each queued run must execute.
+            return float("nan")
+        try:
+            return _fingerprint(folder_paths.get_annotated_filepath(image))
+        except (OSError, ValueError):
+            return float("nan")
 
     @classmethod
     def VALIDATE_INPUTS(s, mode, input_dir, output_dir, pattern, strip_trailing_numbers, repeat_last, image):

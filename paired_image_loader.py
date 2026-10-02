@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import hashlib
 import os
 import re
 import uuid
@@ -80,7 +79,6 @@ class _NodeState:
 
 
 _STATE: Dict[str, _NodeState] = {}
-_SIGNATURE_INDEX: Dict[Tuple, int] = {}
 
 # Maximum number of entries retained in each module-level cache dict.
 # Old entries are evicted FIFO once the cap is reached.
@@ -219,14 +217,11 @@ class PairedImageLoader:
                 (state.index + 1) % len(pairs)
             )
 
-        state.index = next_index
         pair = pairs[next_index]
-
         source_tensor = self._load_image(pair.source.path)
         output_tensor = self._load_image(pair.output.path)
-
-        _evict_oldest(_SIGNATURE_INDEX, _MAX_CACHE_ENTRIES)
-        _SIGNATURE_INDEX[signature] = state.index
+        # Commit only after both files decode; a failed pair is retried.
+        state.index = next_index
 
         print(
             "[PairedImageLoader] "
@@ -457,52 +452,5 @@ class PairedImageLoader:
         strip_trailing_numbers=False,
         unique_id=None,
     ):
-        source_dir = _coerce_str(source_dir).strip()
-        output_dir = _coerce_str(output_dir).strip()
-        if isinstance(reverse, list):
-            reverse = reverse[0]
-        if isinstance(strip_trailing_numbers, list):
-            strip_trailing_numbers = strip_trailing_numbers[0]
-
-        reverse = bool(reverse)
-        strip_trailing_numbers = bool(strip_trailing_numbers)
-
-        digest = hashlib.sha256()
-        digest.update(f"reverse={reverse}".encode("utf-8"))
-
-        if not source_dir or not output_dir:
-            digest.update(f"|missing_dirs|{source_dir}|{output_dir}|".encode("utf-8"))
-            return digest.hexdigest()
-
-        try:
-            src_path = _resolve_directory(source_dir)
-            out_path = _resolve_directory(output_dir)
-        except Exception as exc:
-            digest.update(f"|resolve_error|{exc}|".encode("utf-8"))
-            return digest.hexdigest()
-
-        if not src_path.exists() or not src_path.is_dir():
-            digest.update(f"|src_missing|{src_path}|".encode("utf-8"))
-            return digest.hexdigest()
-        if not out_path.exists() or not out_path.is_dir():
-            digest.update(f"|out_missing|{out_path}|".encode("utf-8"))
-            return digest.hexdigest()
-
-        pairs, signature, _ = cls._scan_directories(
-            src_path, out_path, strip_trailing_numbers
-        )
-
-        digest.update(str(signature).encode("utf-8"))
-        digest.update(f"|pairs={len(pairs)}|".encode("utf-8"))
-        last_index = _SIGNATURE_INDEX.get(signature, -1)
-        digest.update(f"|last_index={last_index}|".encode("utf-8"))
-        return digest.hexdigest()
-
-
-NODE_CLASS_MAPPINGS = {
-    "PairedImageLoader": PairedImageLoader,
-}
-
-NODE_DISPLAY_NAME_MAPPINGS = {
-    "PairedImageLoader": "Paired Image Loader",
-}
+        # Every queued run advances this instance's cursor; never reuse a cached pair.
+        return float("nan")
